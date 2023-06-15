@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 import pytest
 import shell_interface as sh
 
-from butter_backup import device_managers as dm
+import storage_device_managers as sdm
 
 
 def get_random_filename(dir_: str) -> str:
@@ -38,49 +38,32 @@ def big_file():
 @pytest.fixture
 def encrypted_btrfs_device(big_file):
     """
-    Prepare device for ButterBackup and return its config
+    Create encrypted BtrFS file system
 
     Returns
     -------
-    config: BtrfsConfig
-        configuration allowing to interact with the returned device
+    Path
+        destination of encrypted BtrFS file system
+    str
+        password command that echos password to STDOUT
     """
-    config = dm.prepare_device_for_butterbackend(big_file)
-    with dm.symbolic_link(big_file, config.device()):
-        yield config
+    password_cmd = sdm.generate_passcmd()
+    sdm.encrypt_device(big_file, password_cmd)
+    with sdm.decrypted_device(big_file, password_cmd) as decrypted:
+        sdm.mkfs_btrfs(decrypted)
+    return big_file, password_cmd
 
 
-@pytest.fixture
-def encrypted_restic_device(big_file):
-    """
-    Prepare device for Restic on BtrFS and return its config
-
-    Returns
-    -------
-    config: ResticConfig
-        configuration allowing to interact with the returned device
-    """
-    config = dm.prepare_device_for_resticbackend(big_file)
-    with dm.symbolic_link(big_file, config.device()):
-        yield config
-
-
-@pytest.fixture(params=["encrypted_btrfs_device", "encrypted_restic_device"])
+@pytest.fixture(params=["encrypted_btrfs_device"])
 def encrypted_device(request):
-    config = request.getfixturevalue(request.param)
-    return config
+    # As of now, the fixture seems superfluous. However, it is kept in case
+    # support for other file systems is added later on.
+    dest, pass_cmd = request.getfixturevalue(request.param)
+    return dest, pass_cmd
 
 
 @pytest.fixture
 def btrfs_device(encrypted_btrfs_device):
-    config = encrypted_btrfs_device
-    with dm.decrypted_device(config.device(), config.DevicePassCmd) as decrypted:
+    device, pass_cmd = encrypted_btrfs_device
+    with sdm.decrypted_device(device, pass_cmd) as decrypted:
         yield decrypted
-
-
-@pytest.fixture
-def mounted_device(encrypted_device):
-    config = encrypted_device
-    with dm.decrypted_device(config.device(), config.DevicePassCmd) as decrypted:
-        with dm.mounted_device(decrypted, config.Compression) as mounted_device:
-            yield config, mounted_device
