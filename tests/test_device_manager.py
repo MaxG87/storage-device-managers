@@ -203,7 +203,8 @@ def test_symbolic_link_does_not_crash_in_case_of_vanished_link() -> None:
         source.write_text(content)
         in_dest = Path(get_random_filename())
         with sdm.symbolic_link(src=source, dest=in_dest) as out_dest:
-            sh.run_cmd(cmd=["sudo", "rm", out_dest])
+            cmd: sh.StrPathList = ["sudo", "rm", out_dest]
+            sh.run_cmd(cmd=cmd)
 
 
 def test_generate_passcmd_is_not_static():

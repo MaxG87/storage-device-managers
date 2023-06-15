@@ -7,7 +7,7 @@ import string
 from collections import defaultdict
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional
+from typing import Iterator, Optional
 from uuid import UUID, uuid4
 
 import shell_interface as sh
@@ -49,7 +49,7 @@ class ValidCompressions(enum.Enum):
 
 
 @contextlib.contextmanager
-def decrypted_device(device: Path, pass_cmd: str):
+def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
     decrypted = open_encrypted_device(device, pass_cmd)
     logger.success(f"Speichermedium {device} erfolgreich entschlüsselt.")
     try:
@@ -62,7 +62,9 @@ def decrypted_device(device: Path, pass_cmd: str):
 
 
 @contextlib.contextmanager
-def mounted_device(device: Path, compression: Optional[ValidCompressions]):
+def mounted_device(
+    device: Path, compression: Optional[ValidCompressions]
+) -> Iterator[Path]:
     if is_mounted(device):
         unmount_device(device)
     with TemporaryDirectory() as td:
@@ -79,7 +81,7 @@ def mounted_device(device: Path, compression: Optional[ValidCompressions]):
 
 
 @contextlib.contextmanager
-def symbolic_link(src: Path, dest: Path):
+def symbolic_link(src: Path, dest: Path) -> Iterator[Path]:
     """Create an symbolic link from `src` to `dest`
 
     This context manager will create a symbolic link from src to dest. It
