@@ -167,6 +167,25 @@ def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
 
 
 def close_decrypted_device(device: Path) -> None:
+    """Close a decrypted device
+
+    This function will try to close a device that was previously opened by
+    `cryptsetup`. The given path must point into `/dev/mapper`, because
+    `cryptsetup` always opens devices into there. If the given path points
+    somewhere else, a InvalidDecryptedDevice is raised.
+
+    Parameters:
+    -----------
+    device
+        The device do be closed.
+
+    Raises:
+    -------
+    InvalidDecryptedDevice
+        if `device` does not point into `/dev/mapper`
+    CalledProcessError
+        if the exit code of the close command is non-zero
+    """
     if device.parent != Path("/dev/mapper"):
         raise InvalidDecryptedDevice
     map_name = device.name
@@ -175,6 +194,29 @@ def close_decrypted_device(device: Path) -> None:
 
 
 def encrypt_device(device: Path, password_cmd: str) -> UUID:
+    """Encrypt a device
+
+    This function will encrypt a device. The device can be any valid file-like
+    object like real devices in `/dev/` or suitably sized files in $HOME.
+
+    In order to retrieve the necessary password, the input `password_cmd` is
+    executed in a subshell and its STDOUT used as password. Therefor, DO NOT
+    USE UNTRUSTED `password_cmd`!
+
+    In order to obtain a safe password_cmd, refer to `generate_passcmd`.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be encrypted
+    password_cmd
+        Shell command that prints the password to be used to STDOUT
+
+    Returns:
+    --------
+    UUID
+        UUID of the new LUKS partition
+    """
     new_uuid = uuid4()
     format_cmd: sh.StrPathList = [
         "sudo",
@@ -188,8 +230,16 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     return new_uuid
 
 
-def mkfs_btrfs(file: Path) -> None:
-    cmd: sh.StrPathList = ["sudo", "mkfs.btrfs", file]
+def mkfs_btrfs(device: Path) -> None:
+    """Format device with BtrFS
+
+    Parameters:
+    -----------
+    device
+        file-like object to be formatted
+    """
+
+    cmd: sh.StrPathList = ["sudo", "mkfs.btrfs", device]
     sh.run_cmd(cmd=cmd)
 
 
