@@ -3,6 +3,7 @@ from importlib import metadata
 from .storage_device_managers import (
     InvalidDecryptedDevice,
     ValidCompressions,
+    chown,
     close_decrypted_device,
     decrypted_device,
     encrypt_device,
@@ -19,13 +20,13 @@ from .storage_device_managers import (
 
 __version__ = metadata.version(__name__)
 __all__ = [
-    "InvalidDecryptedDevice",
-    "ValidCompressions",
+    "chown",
     "close_decrypted_device",
     "decrypted_device",
     "encrypt_device",
     "generate_passcmd",
     "get_mounted_devices",
+    "InvalidDecryptedDevice",
     "is_mounted",
     "mkfs_btrfs",
     "mount_btrfs_device",
@@ -33,4 +34,5 @@ __all__ = [
     "open_encrypted_device",
     "symbolic_link",
     "unmount_device",
+    "ValidCompressions",
 ]
