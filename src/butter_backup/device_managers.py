@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import contextlib
+import enum
 import secrets
 import string
 from collections import defaultdict
-from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Optional
@@ -13,11 +13,39 @@ from uuid import UUID, uuid4
 import shell_interface as sh
 from loguru import logger
 
-from . import config_parser as cp
-
 
 class InvalidDecryptedDevice(ValueError):
     pass
+
+
+class ValidCompressions(enum.Enum):
+    LZO = "lzo"
+    ZLIB = "zlib"
+    ZLIB1 = "zlib:1"
+    ZLIB2 = "zlib:2"
+    ZLIB3 = "zlib:3"
+    ZLIB4 = "zlib:4"
+    ZLIB5 = "zlib:5"
+    ZLIB6 = "zlib:6"
+    ZLIB7 = "zlib:7"
+    ZLIB8 = "zlib:8"
+    ZLIB9 = "zlib:9"
+    ZSTD = "zstd"
+    ZSTD1 = "zstd:1"
+    ZSTD2 = "zstd:2"
+    ZSTD3 = "zstd:3"
+    ZSTD4 = "zstd:4"
+    ZSTD5 = "zstd:5"
+    ZSTD6 = "zstd:6"
+    ZSTD7 = "zstd:7"
+    ZSTD8 = "zstd:8"
+    ZSTD9 = "zstd:9"
+    ZSTD10 = "zstd:10"
+    ZSTD11 = "zstd:11"
+    ZSTD12 = "zstd:12"
+    ZSTD13 = "zstd:13"
+    ZSTD14 = "zstd:14"
+    ZSTD15 = "zstd:15"
 
 
 @contextlib.contextmanager
@@ -34,7 +62,7 @@ def decrypted_device(device: Path, pass_cmd: str):
 
 
 @contextlib.contextmanager
-def mounted_device(device: Path, compression: Optional[cp.ValidCompressions]):
+def mounted_device(device: Path, compression: Optional[ValidCompressions]):
     if is_mounted(device):
         unmount_device(device)
     with TemporaryDirectory() as td:
@@ -91,7 +119,7 @@ def symbolic_link(src: Path, dest: Path):
 
 
 def mount_btrfs_device(
-    device: Path, mount_dir: Path, compression: Optional[cp.ValidCompressions]
+    device: Path, mount_dir: Path, compression: Optional[ValidCompressions]
 ) -> None:
     cmd: sh.StrPathList = [
         "sudo",
@@ -158,58 +186,6 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     ]
     sh.pipe_pass_cmd_to_real_cmd(pass_cmd=password_cmd, command=format_cmd)
     return new_uuid
-
-
-def prepare_device_for_butterbackend(device: Path) -> cp.BtrFSRsyncConfig:
-    password_cmd = generate_passcmd()
-    backup_repository_folder = "ButterBackupRepository"
-    volume_uuid = encrypt_device(device, password_cmd)
-    compression = cp.ValidCompressions.ZSTD
-    with decrypted_device(device, password_cmd) as decrypted:
-        mkfs_btrfs(decrypted)
-        with mounted_device(decrypted, compression) as mounted:
-            backup_repository = mounted / backup_repository_folder
-            sh.run_cmd(cmd=["sudo", "mkdir", backup_repository])
-            initial_subvol = backup_repository / date.today().strftime(
-                cp.BtrFSRsyncConfig.SubvolTimestampFmt
-            )
-            sh.run_cmd(cmd=["sudo", "btrfs", "subvolume", "create", initial_subvol])
-    config = cp.BtrFSRsyncConfig(
-        BackupRepositoryFolder=backup_repository_folder,
-        Compression=compression,
-        DevicePassCmd=password_cmd,
-        Files=set(),
-        FilesDest="Einzeldateien",
-        Folders={},
-        UUID=volume_uuid,
-    )
-    return config
-
-
-def prepare_device_for_resticbackend(device: Path) -> cp.ResticConfig:
-    device_passcmd = generate_passcmd()
-    repository_passcmd = generate_passcmd()
-    backup_repository_folder = "ResticBackupRepository"
-    compression = None  # Restic encrypts and encrypted data are incompressible
-    volume_uuid = encrypt_device(device, device_passcmd)
-    with decrypted_device(device, device_passcmd) as decrypted:
-        mkfs_btrfs(decrypted)
-        with mounted_device(decrypted, compression) as mounted:
-            backup_repo = mounted / backup_repository_folder
-            sh.run_cmd(cmd=["sudo", "mkdir", backup_repo])
-            sh.pipe_pass_cmd_to_real_cmd(
-                repository_passcmd,
-                ["sudo", "restic", "init", "-r", backup_repo],
-            )
-    config = cp.ResticConfig(
-        BackupRepositoryFolder=backup_repository_folder,
-        Compression=compression,
-        DevicePassCmd=device_passcmd,
-        FilesAndFolders=set(),
-        RepositoryPassCmd=repository_passcmd,
-        UUID=volume_uuid,
-    )
-    return config
 
 
 def mkfs_btrfs(file: Path) -> None:
