@@ -84,7 +84,7 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
 
 @contextlib.contextmanager
 def mounted_device(
-    device: Path, compression: Optional[ValidCompressions]
+    device: Path, compression: Optional[ValidCompressions] = None
 ) -> Iterator[Path]:
     """Mount a given BtrFS device
 
@@ -168,7 +168,7 @@ def symbolic_link(src: Path, dest: Path) -> Iterator[Path]:
 
 
 def mount_btrfs_device(
-    device: Path, mount_dir: Path, compression: Optional[ValidCompressions]
+    device: Path, mount_dir: Path, compression: Optional[ValidCompressions] = None
 ) -> None:
     cmd: sh.StrPathList = [
         "sudo",

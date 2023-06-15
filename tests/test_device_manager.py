@@ -24,7 +24,18 @@ class MyCustomTestException(Exception):
     pass
 
 
-def test_mounted_device(btrfs_device) -> None:
+def test_mounted_device_without_compression(btrfs_device) -> None:
+    with sdm.mounted_device(btrfs_device) as md:
+        assert md.exists()
+        assert md.is_dir()
+        assert sdm.is_mounted(btrfs_device)
+        assert md in sdm.get_mounted_devices()[str(btrfs_device)]
+    assert not md.exists()
+    assert not sdm.is_mounted(btrfs_device)
+    assert str(btrfs_device) not in sdm.get_mounted_devices()
+
+
+def test_mounted_device_with_compression(btrfs_device) -> None:
     with sdm.mounted_device(btrfs_device, sdm.ValidCompressions.ZSTD9) as md:
         assert md.exists()
         assert md.is_dir()
@@ -54,7 +65,7 @@ def test_mounted_device_fails_on_not_unmountable_device() -> None:
 
     root = get_root_device()
     with pytest.raises(subprocess.CalledProcessError):
-        with sdm.mounted_device(root, None):
+        with sdm.mounted_device(root):
             pass
 
 
@@ -97,9 +108,7 @@ def test_get_mounted_devices_includes_root() -> None:
 
 def test_unmount_device(btrfs_device) -> None:
     with TemporaryDirectory() as mountpoint:
-        sdm.mount_btrfs_device(
-            btrfs_device, Path(mountpoint), sdm.ValidCompressions.ZSTD7
-        )
+        sdm.mount_btrfs_device(btrfs_device, Path(mountpoint))
         sdm.unmount_device(btrfs_device)
         assert not sdm.is_mounted(btrfs_device)
 
