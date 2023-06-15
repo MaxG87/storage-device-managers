@@ -50,6 +50,27 @@ class ValidCompressions(enum.Enum):
 
 @contextlib.contextmanager
 def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
+    """Decrypt a given device using pass_cmd
+
+    Given a device and a shell command that outputs a password on STDOUT, this
+    context manager will open the device using `cryptsetup`. Upon exit, the
+    device is closed again.
+
+    Note that pass_cmd will directly be executed in a subshell. Therefore, DO NOT
+    USE UNTRUSTED `pass_cmd`!
+
+    Parameters:
+    -----------
+    device
+        file-like object to be opened with `cryptsetup`
+    pass_cmd
+        command that prints the device's password on STDOUT
+
+    Returns:
+    --------
+    Path
+        destination of opened device
+    """
     decrypted = open_encrypted_device(device, pass_cmd)
     logger.success(f"Speichermedium {device} erfolgreich entschlüsselt.")
     try:
@@ -65,6 +86,31 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
 def mounted_device(
     device: Path, compression: Optional[ValidCompressions]
 ) -> Iterator[Path]:
+    """Mount a given BtrFS device
+
+    Given a path pointing to a file-like object, this context manager will
+    mount it to some temporary directory and return its path. Upon exit, the
+    file-like object is unmounted again.
+
+    The filesystem of `device` must be BtrFS. While technically other file
+    systems might work too, this behaviour is not guaranteed and might be
+    broken without further notice!
+
+    If `compression` is provided, a mount option specifying the transparent
+    file system compression is set.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be mounted
+    compression
+        compression level to be used by BtrFS
+
+    Returns:
+    --------
+    Path
+        directory to which `device` was mounted
+    """
     if is_mounted(device):
         unmount_device(device)
     with TemporaryDirectory() as td:
@@ -99,7 +145,8 @@ def symbolic_link(src: Path, dest: Path) -> Iterator[Path]:
 
     Returns:
     --------
-    The value of `dest.absolute()` will be returned.
+    Path
+        The value of `dest.absolute()` will be returned.
     """
 
     if not src.exists():
@@ -202,7 +249,7 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     object like real devices in `/dev/` or suitably sized files in $HOME.
 
     In order to retrieve the necessary password, the input `password_cmd` is
-    executed in a subshell and its STDOUT used as password. Therefor, DO NOT
+    executed in a subshell and its STDOUT used as password. Therefore, DO NOT
     USE UNTRUSTED `password_cmd`!
 
     In order to obtain a safe password_cmd, refer to `generate_passcmd`.
