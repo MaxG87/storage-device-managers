@@ -48,7 +48,7 @@ def encrypted_btrfs_device(big_file):
         password command that echos password to STDOUT
     """
     password_cmd = sdm.generate_passcmd()
-    sdm.encrypt_device(big_file, password_cmd)
+    sdm.encrypt_device(big_file, password_cmd, fast_and_unsecure=True)
     with sdm.decrypted_device(big_file, password_cmd) as decrypted:
         sdm.mkfs_btrfs(decrypted)
     return big_file, password_cmd

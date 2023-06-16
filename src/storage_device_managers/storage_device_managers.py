@@ -242,7 +242,9 @@ def close_decrypted_device(device: Path) -> None:
     sh.run_cmd(cmd=close_cmd)
 
 
-def encrypt_device(device: Path, password_cmd: str) -> UUID:
+def encrypt_device(
+    device: Path, password_cmd: str, *, fast_and_unsecure: bool = False
+) -> UUID:
     """Encrypt a device
 
     This function will encrypt a device. The device can be any valid file-like
@@ -252,6 +254,11 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     executed in a subshell and its STDOUT used as password. Therefore, DO NOT
     USE UNTRUSTED `password_cmd`!
 
+    The argument `fast_and_unsecure` is for internal use only. If set to
+    `True`, `cryptsetup`'s PBKDF is configured to be as fast as possible. This
+    renders it useless for any real-world use cases but is extremely helpful in
+    the test suite.
+
     In order to obtain a safe password_cmd, refer to `generate_passcmd`.
 
     Parameters:
@@ -260,6 +267,8 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
         file-like object to be encrypted
     password_cmd
         Shell command that prints the password to be used to STDOUT
+    fast_and_unsecure
+        for internal use only
 
     Returns:
     --------
@@ -275,6 +284,18 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
         str(new_uuid),
         device,
     ]
+    if fast_and_unsecure:
+        format_cmd.extend(
+            [
+                "--pbkdf-force-iterations",
+                "4",
+                "--pbkdf-memory",
+                "32",
+                "--pbkdf-parallel",
+                "1",
+            ]
+        )
+
     sh.pipe_pass_cmd_to_real_cmd(pass_cmd=password_cmd, command=format_cmd)
     return new_uuid
 
