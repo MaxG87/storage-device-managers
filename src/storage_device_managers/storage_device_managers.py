@@ -243,7 +243,7 @@ def close_decrypted_device(device: Path) -> None:
 
 
 def encrypt_device(
-    device: Path, password_cmd: str, *, fast_and_unsecure: bool = False
+    device: Path, password_cmd: str, *, fast_and_insecure: bool = False
 ) -> UUID:
     """Encrypt a device
 
@@ -254,7 +254,7 @@ def encrypt_device(
     executed in a subshell and its STDOUT used as password. Therefore, DO NOT
     USE UNTRUSTED `password_cmd`!
 
-    The argument `fast_and_unsecure` is for internal use only. If set to
+    The argument `fast_and_insecure` is for internal use only. If set to
     `True`, `cryptsetup`'s PBKDF is configured to be as fast as possible. This
     renders it useless for any real-world use cases but is extremely helpful in
     the test suite.
@@ -267,7 +267,7 @@ def encrypt_device(
         file-like object to be encrypted
     password_cmd
         Shell command that prints the password to be used to STDOUT
-    fast_and_unsecure
+    fast_and_insecure
         for internal use only
 
     Returns:
@@ -284,7 +284,7 @@ def encrypt_device(
         str(new_uuid),
         device,
     ]
-    if fast_and_unsecure:
+    if fast_and_insecure:
         format_cmd.extend(
             [
                 "--pbkdf-force-iterations",
