@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "storage-device-managers"
-version = "0.10.0"
+version = "0.11.0"
 description = "Helpful context managers for managing decryption and mounts of storage devices"
 authors = ["Max Görner <max@familie-goerner.eu>"]
 license = "GPL-3.0-or-later"
