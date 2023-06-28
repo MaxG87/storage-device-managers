@@ -262,7 +262,7 @@ def test_generate_passcmd_samples_uniformly():
     assert all(lower_bound < (cur / nof_chars) < upper_bound for cur in chars.values())
 
 
-def test_encrypt_device(big_file) -> None:
+def test_encrypt_device_reports_correct_uuid(big_file) -> None:
     pass_cmd = sdm.generate_passcmd()
     result_uuid = sdm.encrypt_device(big_file, pass_cmd)
     uuid_check_cmd = ["sudo", "cryptsetup", "luksUUID", big_file]
