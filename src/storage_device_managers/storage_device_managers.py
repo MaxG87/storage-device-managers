@@ -23,6 +23,10 @@ class InvalidDecryptedDevice(ValueError):
     pass
 
 
+class UnmountError(RuntimeError):
+    pass
+
+
 class ValidCompressions(enum.Enum):
     LZO = "lzo"
     ZLIB = "zlib"
@@ -277,7 +281,10 @@ def unmount_device(device: Path) -> None:
         if `umount` returns a non-zero exit code
     """
     cmd: sh.StrPathList = ["sudo", "umount", device]
-    sh.run_cmd(cmd=cmd)
+    try:
+        sh.run_cmd(cmd=cmd)
+    except CalledProcessError as e:
+        raise UnmountError from e
 
 
 def open_encrypted_device(device: Path, pass_cmd: str) -> Path:

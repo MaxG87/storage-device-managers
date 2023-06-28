@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import subprocess
 from collections import Counter
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
@@ -64,7 +63,7 @@ def test_mounted_device_fails_on_not_unmountable_device() -> None:
         raise ValueError("No device mounted on / was found.")
 
     root = get_root_device()
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(sdm.UnmountError):
         with sdm.mounted_device(root):
             pass
 
@@ -111,6 +110,12 @@ def test_unmount_device(btrfs_device) -> None:
         sdm.mount_btrfs_device(btrfs_device, Path(mountpoint))
         sdm.unmount_device(btrfs_device)
         assert not sdm.is_mounted(btrfs_device)
+
+
+def test_unmount_device_raises_unmounterror() -> None:
+    with TemporaryDirectory() as mountpoint:
+        with pytest.raises(sdm.UnmountError):
+            sdm.unmount_device(Path(mountpoint))
 
 
 def test_open_encrypted_device_raises_devicedecryptionerror() -> None:

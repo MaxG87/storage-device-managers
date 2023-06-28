@@ -3,6 +3,7 @@ from importlib import metadata
 from .storage_device_managers import (
     DeviceDecryptionError,
     InvalidDecryptedDevice,
+    UnmountError,
     ValidCompressions,
     chown,
     close_decrypted_device,
@@ -36,5 +37,6 @@ __all__ = [
     "open_encrypted_device",
     "symbolic_link",
     "unmount_device",
+    "UnmountError",
     "ValidCompressions",
 ]
