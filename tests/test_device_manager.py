@@ -113,6 +113,23 @@ def test_unmount_device(btrfs_device) -> None:
         assert not sdm.is_mounted(btrfs_device)
 
 
+def test_open_encrypted_device_raises_devicedecryptionerror() -> None:
+    pass_cmd = sdm.generate_passcmd()
+    with NamedTemporaryFile() as named_temp_file:
+        device = Path(named_temp_file.name)
+        with pytest.raises(sdm.DeviceDecryptionError):
+            sdm.open_encrypted_device(device=device, pass_cmd=pass_cmd)
+
+
+def test_decrypted_device_raises_devicedecryptionerror() -> None:
+    pass_cmd = sdm.generate_passcmd()
+    with NamedTemporaryFile() as named_temp_file:
+        device = Path(named_temp_file.name)
+        with pytest.raises(sdm.DeviceDecryptionError):
+            with sdm.decrypted_device(device=device, pass_cmd=pass_cmd):
+                pass
+
+
 def test_decrypt_device_roundtrip(encrypted_device) -> None:
     device, pass_cmd = encrypted_device
     decrypted = sdm.open_encrypted_device(device=device, pass_cmd=pass_cmd)

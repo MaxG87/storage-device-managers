@@ -6,12 +6,17 @@ import secrets
 import string
 from collections import defaultdict
 from pathlib import Path
+from subprocess import CalledProcessError
 from tempfile import TemporaryDirectory
 from typing import Iterator, Optional, Union
 from uuid import UUID, uuid4
 
 import shell_interface as sh
 from loguru import logger
+
+
+class DeviceDecryptionError(RuntimeError):
+    pass
 
 
 class InvalidDecryptedDevice(ValueError):
@@ -56,6 +61,7 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
     context manager will open the device using `cryptsetup`. Upon exit, the
     device is closed again.
 
+
     Note that pass_cmd will directly be executed in a subshell. Therefore, DO NOT
     USE UNTRUSTED `pass_cmd`!
 
@@ -70,6 +76,11 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
     --------
     Path
         destination of opened device
+
+    Raises:
+    -------
+    DeviceDecryptionError
+        if cryptsetup returns a non-zero exit code
     """
     decrypted = open_encrypted_device(device, pass_cmd)
     logger.success(f"Speichermedium {device} erfolgreich entschlüsselt.")
@@ -273,12 +284,14 @@ def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
     """Open an encrypted device
 
     This function will open an encrypted device. The given path must point to a
-    device that can be opened by `cryptsetup`. If cryptsetup returns a non-zero
-    exit code an DeviceDecryptionError is raised.
+    device that can be opened by `cryptsetup`.
 
     In order to encrypt the device, `pass_cmd` is executed and its output is
     piped into `cryptsetup`. This allows to use any program that can output
     the password to decrypt the device.
+
+    Note that pass_cmd will directly be executed in a subshell. Therefore, DO NOT
+    USE UNTRUSTED `pass_cmd`!
 
     Parameters:
     -----------
@@ -286,10 +299,18 @@ def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
         The device to be opened.
     pass_cmd
         The command that outputs the password to decrypt the device.
+
+    Raises:
+    -------
+    DeviceDecryptionError
+        if cryptsetup returns a non-zero exit code
     """
     map_name = device.name
     decrypt_cmd: sh.StrPathList = ["sudo", "cryptsetup", "open", device, map_name]
-    sh.pipe_pass_cmd_to_real_cmd(pass_cmd, decrypt_cmd)
+    try:
+        sh.pipe_pass_cmd_to_real_cmd(pass_cmd, decrypt_cmd)
+    except CalledProcessError as e:
+        raise DeviceDecryptionError from e
     return Path("/dev/mapper/") / map_name
 
 

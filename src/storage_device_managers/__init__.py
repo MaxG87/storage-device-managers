@@ -1,6 +1,7 @@
 from importlib import metadata
 
 from .storage_device_managers import (
+    DeviceDecryptionError,
     InvalidDecryptedDevice,
     ValidCompressions,
     chown,
@@ -23,6 +24,7 @@ __all__ = [
     "chown",
     "close_decrypted_device",
     "decrypted_device",
+    "DeviceDecryptionError",
     "encrypt_device",
     "generate_passcmd",
     "get_mounted_devices",
