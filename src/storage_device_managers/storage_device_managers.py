@@ -203,25 +203,25 @@ def mount_btrfs_device(
     sh.run_cmd(cmd=cmd)
 
 
-def is_mounted(dest: Path) -> bool:
+def is_mounted(device: Path) -> bool:
     """Check whether a given device is mounted
 
     Parameters:
     -----------
-    dest
+    device
         file-like object to be checked
 
     Returns:
     --------
     bool
-        True if `dest` is mounted, False otherwise
+        True if `device` is mounted, False otherwise
     """
-    dest_as_str = str(dest)
+    device_as_str = str(device)
     try:
-        mount_dest = get_mounted_devices()[dest_as_str]
-        logger.info(f"Mount des Speichermediums {dest} in {mount_dest} gefunden.")
+        mount_dest = get_mounted_devices()[device_as_str]
+        logger.info(f"Mount des Speichermediums {device} in {mount_dest} gefunden.")
     except KeyError:
-        logger.info(f"Kein Mountpunkt für Speichermedium {dest} gefunden.")
+        logger.info(f"Kein Mountpunkt für Speichermedium {device} gefunden.")
         return False
     return True
 
