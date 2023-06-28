@@ -170,6 +170,28 @@ def symbolic_link(src: Path, dest: Path) -> Iterator[Path]:
 def mount_btrfs_device(
     device: Path, mount_dir: Path, compression: Optional[ValidCompressions] = None
 ) -> None:
+    """
+    Mount a given BtrFS device
+
+    Given a path pointing to a file-like object and a target directory, this function
+    will mount the device to the target directory.
+
+    The filesystem of `device` must be BtrFS. While technically other file systems
+    might work too, this behaviour is not guaranteed and might be broken without
+    further notice!
+
+    If `compression` is provided, a mount option specifying the transparent file
+    system compression is set.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be mounted
+    mount_dir
+        directory to which `device` is mounted
+    compression
+        compression level to be used by BtrFS
+    """
     cmd: sh.StrPathList = [
         "sudo",
         "mount",
@@ -182,6 +204,18 @@ def mount_btrfs_device(
 
 
 def is_mounted(dest: Path) -> bool:
+    """Check whether a given device is mounted
+
+    Parameters:
+    -----------
+    dest
+        file-like object to be checked
+
+    Returns:
+    --------
+    bool
+        True if `dest` is mounted, False otherwise
+    """
     dest_as_str = str(dest)
     try:
         mount_dest = get_mounted_devices()[dest_as_str]
@@ -193,6 +227,18 @@ def is_mounted(dest: Path) -> bool:
 
 
 def get_mounted_devices() -> dict[str, set[Path]]:
+    """Get all mounted devices
+
+    This function will parse the output of `mount` and return everything that
+    is mounted to somewhere. Since a source can be mounted to multiple
+    destinations, the return value is a dictionary mapping device names to sets
+    of mount points.
+
+    Returns:
+    --------
+    dict
+        A dictionary mapping device names to the set of mount points.
+    """
     raw_mounts = sh.run_cmd(cmd=["mount"], capture_output=True)
     mount_lines = raw_mounts.stdout.decode().splitlines()
     mount_points = defaultdict(set)
@@ -204,11 +250,43 @@ def get_mounted_devices() -> dict[str, set[Path]]:
 
 
 def unmount_device(device: Path) -> None:
+    """Unmount a given device
+
+    This function will unmount a given device. It relies on the system's
+    `umount` programm to do so.
+
+    Parameters:
+    -----------
+    device
+        The device to be unmounted.
+
+    Raises:
+    -------
+    UnmountError
+        if `umount` returns a non-zero exit code
+    """
     cmd: sh.StrPathList = ["sudo", "umount", device]
     sh.run_cmd(cmd=cmd)
 
 
 def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
+    """Open an encrypted device
+
+    This function will open an encrypted device. The given path must point to a
+    device that can be opened by `cryptsetup`. If cryptsetup returns a non-zero
+    exit code an DeviceDecryptionError is raised.
+
+    In order to encrypt the device, `pass_cmd` is executed and its output is
+    piped into `cryptsetup`. This allows to use any program that can output
+    the password to decrypt the device.
+
+    Parameters:
+    -----------
+    device
+        The device to be opened.
+    pass_cmd
+        The command that outputs the password to decrypt the device.
+    """
     map_name = device.name
     decrypt_cmd: sh.StrPathList = ["sudo", "cryptsetup", "open", device, map_name]
     sh.pipe_pass_cmd_to_real_cmd(pass_cmd, decrypt_cmd)
