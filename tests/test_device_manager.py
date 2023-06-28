@@ -14,6 +14,10 @@ from hypothesis import strategies as st
 import storage_device_managers as sdm
 
 
+def in_docker_container() -> bool:
+    return Path("/.dockerenv").exists()
+
+
 def get_random_filename() -> str:
     with NamedTemporaryFile() as named_file:
         return named_file.name
@@ -55,6 +59,9 @@ def test_mounted_device_takes_over_already_mounted_device(btrfs_device) -> None:
         assert not sdm.is_mounted(btrfs_device)
 
 
+@pytest.mark.skipif(
+    in_docker_container(), reason="Root file system may be missing in Docker container."
+)
 def test_mounted_device_fails_on_not_unmountable_device() -> None:
     def get_root_device() -> Path:
         for device, mount_points in sdm.get_mounted_devices().items():
