@@ -128,7 +128,7 @@ def mounted_device(
 
 @contextlib.contextmanager
 def symbolic_link(src: Path, dest: Path) -> Iterator[Path]:
-    """Create an symbolic link from `src` to `dest`
+    """Create a symbolic link from `src` to `dest`
 
     This context manager will create a symbolic link from src to dest. It
     differentiates itself from `Path.link_to()` by …:
