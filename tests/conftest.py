@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
@@ -24,8 +25,8 @@ def mounted_directories():
             sh.run_cmd(cmd=["sudo", "umount", mountpoint])
 
 
-@pytest.fixture
-def big_file():
+@pytest.fixture(scope="session")
+def _big_file_persistent():
     min_size = 128 * 1024**2  # ~109MiB is the minimum size for BtrFS
     with TemporaryDirectory() as tempdir:
         filename = get_random_filename(dir_=tempdir)
@@ -36,7 +37,27 @@ def big_file():
 
 
 @pytest.fixture
-def encrypted_btrfs_device(big_file):
+def big_file(_big_file_persistent: Path):
+    with NamedTemporaryFile() as ntf:
+        file = Path(ntf.name)
+        shutil.copy(_big_file_persistent, file)
+        yield file
+
+
+@pytest.fixture(scope="session")
+def _encrypted_btrfs_device_persistent(_big_file_persistent):
+    password_cmd = sdm.generate_passcmd()
+    with NamedTemporaryFile() as ntf:
+        btrfs_device = Path(ntf.name)
+        shutil.copy(_big_file_persistent, btrfs_device)
+        sdm.encrypt_device(btrfs_device, password_cmd)
+        with sdm.decrypted_device(btrfs_device, password_cmd) as decrypted:
+            sdm.mkfs_btrfs(decrypted)
+        yield btrfs_device, password_cmd
+
+
+@pytest.fixture
+def encrypted_btrfs_device(_encrypted_btrfs_device_persistent):
     """
     Create encrypted BtrFS file system
 
@@ -47,11 +68,11 @@ def encrypted_btrfs_device(big_file):
     str
         password command that echos password to STDOUT
     """
-    password_cmd = sdm.generate_passcmd()
-    sdm.encrypt_device(big_file, password_cmd, fast_and_insecure=True)
-    with sdm.decrypted_device(big_file, password_cmd) as decrypted:
-        sdm.mkfs_btrfs(decrypted)
-    return big_file, password_cmd
+    btrfs_device, pass_cmd = _encrypted_btrfs_device_persistent
+    with NamedTemporaryFile() as ntf:
+        file = Path(ntf.name)
+        shutil.copy(btrfs_device, file)
+        yield file, pass_cmd
 
 
 @pytest.fixture(params=["encrypted_btrfs_device"])
@@ -62,8 +83,18 @@ def encrypted_device(request):
     return dest, pass_cmd
 
 
+@pytest.fixture(scope="session")
+def _btrfs_device_persistent(_big_file_persistent):
+    with NamedTemporaryFile() as ntf:
+        btrfs_device = Path(ntf.name)
+        shutil.copy(_big_file_persistent, btrfs_device)
+        sdm.mkfs_btrfs(btrfs_device)
+        yield btrfs_device
+
+
 @pytest.fixture
-def btrfs_device(encrypted_btrfs_device):
-    device, pass_cmd = encrypted_btrfs_device
-    with sdm.decrypted_device(device, pass_cmd) as decrypted:
-        yield decrypted
+def btrfs_device(_btrfs_device_persistent):
+    with NamedTemporaryFile() as ntf:
+        file = Path(ntf.name)
+        shutil.copy(_btrfs_device_persistent, file)
+        yield file
