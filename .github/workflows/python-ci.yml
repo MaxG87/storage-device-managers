@@ -28,6 +28,9 @@ jobs:
       - name: Check import ordering with ruff
         run: |
           poetry run ruff check --format=github --select I .
+      - name: Check static typing with mypy
+        run: |
+          poetry run mypy .
       - name: Lint with ruff
         run: |
           poetry run ruff check --format=github .
