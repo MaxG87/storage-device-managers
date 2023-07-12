@@ -30,8 +30,7 @@ jobs:
         run: |
           poetry run ruff check --format=github --select I .
       - name: Check static typing with mypy
-        run: |
-          poetry run mypy .
+        run: poetry run mypy .
       - name: Lint with ruff
         run: |
           poetry run ruff check --format=github .
