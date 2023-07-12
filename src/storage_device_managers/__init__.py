@@ -16,6 +16,8 @@ import shell_interface as sh
 
 try:
     from loguru import logger  # type: ignore[import, unused-ignore]
+
+    logger.disable("storage_device_managers")
 except ModuleNotFoundError:
     logger = SimpleNamespace()  # type: ignore[assignment, unused-ignore]
     logger.success = lambda msg: None  # type: ignore[assignment, unused-ignore]
