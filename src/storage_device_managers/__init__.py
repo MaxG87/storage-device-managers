@@ -7,7 +7,6 @@ import string
 from collections import defaultdict
 from importlib import metadata
 from pathlib import Path
-from subprocess import CalledProcessError
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from typing import Iterator, Optional, Union
@@ -293,7 +292,7 @@ def unmount_device(device: Path) -> None:
     cmd: sh.StrPathList = ["sudo", "umount", device]
     try:
         sh.run_cmd(cmd=cmd)
-    except CalledProcessError as e:
+    except sh.ShellInterfaceError as e:
         raise UnmountError from e
 
 
@@ -326,7 +325,7 @@ def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
     decrypt_cmd: sh.StrPathList = ["sudo", "cryptsetup", "open", device, map_name]
     try:
         sh.pipe_pass_cmd_to_real_cmd(pass_cmd, decrypt_cmd)
-    except CalledProcessError as e:
+    except sh.ShellInterfaceError as e:
         raise DeviceDecryptionError from e
     return Path("/dev/mapper/") / map_name
 
@@ -348,7 +347,7 @@ def close_decrypted_device(device: Path) -> None:
     -------
     InvalidDecryptedDevice
         if `device` does not point into `/dev/mapper`
-    CalledProcessError
+    shell_interface.ShellInterfaceError
         if the exit code of the close command is non-zero
     """
     if device.parent != Path("/dev/mapper"):
