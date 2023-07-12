@@ -31,15 +31,12 @@ enable_error_code = [
     "possibly-undefined"
 ]
 strict = true
-allow_incomplete_defs = true
-allow_untyped_defs = true
 
 
 [[tool.mypy.overrides]]
 module = "tests.*"
-disable_error_code = [
-    "possibly-undefined"
-]
+allow_incomplete_defs = true
+allow_untyped_defs = true
 
 [tool.pytest.ini_options]
 addopts = [
