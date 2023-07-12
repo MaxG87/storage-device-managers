@@ -9,11 +9,18 @@ from importlib import metadata
 from pathlib import Path
 from subprocess import CalledProcessError
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 from typing import Iterator, Optional, Union
 from uuid import UUID, uuid4
 
 import shell_interface as sh
-from loguru import logger
+
+try:
+    from loguru import logger  # type: ignore[import, unused-ignore]
+except ModuleNotFoundError:
+    logger = SimpleNamespace()  # type: ignore[assignment, unused-ignore]
+    logger.success = lambda msg: None  # type: ignore[assignment, unused-ignore]
+    logger.info = lambda msg: None  # type: ignore[assignment, unused-ignore]
 
 __version__ = metadata.version(__name__)
 
