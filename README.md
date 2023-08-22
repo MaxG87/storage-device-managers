@@ -4,3 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
 # storage-device-manager - Helpful context managers for managing decryption and mounts of storage devices
+
+## TODO for v1.0.0
+
+* README must be extended to be helpful and informative
