@@ -1,11 +1,17 @@
-# Debian stable-slim as of Oct. 12th, 2021
-FROM debian@sha256:cb4f1877372e3b13a254fca5e7345a48a2f3e6accbd29d36f94101049ad661ec
+# python:3.11.4-slim-bookworm as of 15 June 2023
+FROM python@sha256:55221704bcc5432f978bc5184d58f54c93ad25313363a1d0db20606a4cf2aef7
 
 # Provide excecutables
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
-    apt install -y btrfs-progs cryptsetup make python3 python3-poetry restic rsync sudo && \
+    apt install -y btrfs-progs cryptsetup make restic rsync sudo && \
     apt autoclean
+
+# Setup Poetry
+ENV POETRY_VERSION=1.5.1
+RUN python3 -m pip install "poetry==$POETRY_VERSION"
+ENV PATH=$PATH:/root/.poetry/bin
+
 
 # Setup production dependencies
 WORKDIR /project
@@ -13,6 +19,8 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install
 
 # Install project
+# README is required for poetry to install the project.
+COPY README.md ./
 COPY src/ src/
 RUN poetry install
 
