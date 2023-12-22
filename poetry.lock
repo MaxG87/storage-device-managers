@@ -682,17 +682,17 @@ files = [
 
 [[package]]
 name = "shell-interface"
-version = "0.12.0"
+version = "0.13.0"
 description = "Helpful and convenient utilities to interact with UNIX shells"
 optional = false
-python-versions = ">=3.8.1,<3.12"
+python-versions = ">=3.8.1,<3.13"
 files = [
-    {file = "shell_interface-0.12.0-py3-none-any.whl", hash = "sha256:ba0511555932e06aed2925a0e0c1c8dddc3999be273343ac9366392ccc5f914d"},
-    {file = "shell_interface-0.12.0.tar.gz", hash = "sha256:8aebb177bd07d276993ab012e313117e05663e8d3c50151e9c098ddf19476bf1"},
+    {file = "shell_interface-0.13.0-py3-none-any.whl", hash = "sha256:ceff3ac1b1df7f874039d41628215594e24c65356a3dff2f97f54b009aab25c6"},
+    {file = "shell_interface-0.13.0.tar.gz", hash = "sha256:3a32d93a53d0a5b47fddde01d98eb85e68dc6b1450aa39836836e26516ac2b74"},
 ]
 
 [package.extras]
-logging = ["loguru (>=0.7.0,<0.8.0)"]
+logging = ["loguru (>=0.7.2,<0.8.0)"]
 
 [[package]]
 name = "sortedcontainers"
@@ -757,4 +757,4 @@ logging = ["loguru"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "17f95d5f07d4a42a0fba056160e176e54e273cd1405b3423d52af216c1dd0c20"
+content-hash = "4d0be075e7c4e9a87b87c51a2e3826e8e68285d1d72407ef01b88b0d17faede3"
