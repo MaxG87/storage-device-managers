@@ -10,7 +10,7 @@ SERVICE_ID_SHORT := $(shell echo $(SERVICE_ID_FULL) | head -c 6)
 DOCKER_TEST_TAG = $(SERVICE_LC)-$(SERVICE_ID_SHORT).test
 
 # Preparation of dependencies
-CACHEBASE ?= ~/.cache/$(SERVICE).make-cache
+CACHEBASE ?= ~/.cache/$(SERVICE).make-cache/
 CACHEDIR = $(CACHEBASE)/$(SERVICE_ID_FULL)
 
 # $(CACHEDIR)/run-arch-tests, $(CACHEDIR)/run-python3.8-tests, ...
@@ -46,7 +46,7 @@ $(CACHEDIR)/run-undockered-tests: | $(CACHEDIR)
 
 $(CACHEDIR)/run-%-tests: | $(CACHEDIR)/%-test-image
 	platform=$(subst -test-image,,$(notdir $|)) ; \
-	docker run --privileged -v "$(CURDIR)/tests/:/project/tests" -t $(DOCKER_TEST_TAG).$$platform
+	docker run --rm --privileged -v "$(CURDIR)/tests/:/project/tests" -t $(DOCKER_TEST_TAG).$$platform
 	touch $@
 
 $(CACHEDIR)/%-test-image: | $(CACHEDIR)
