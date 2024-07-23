@@ -16,9 +16,18 @@ class MyCustomTestException(Exception):
     pass
 
 
-@pytest.mark.parametrize("args", [[], [sdm.ValidCompressions.ZSTD9]])
-def test_mounted_device_without_compression(btrfs_device, args) -> None:
-    with sdm.mounted_device(btrfs_device, *args) as md:
+@pytest.mark.parametrize(
+    "args,kwargs",
+    [
+        ([], {}),
+        ([sdm.ValidCompressions.ZSTD9], {}),
+        ([sdm.ValidCompressions.ZLIB5, 0], {}),
+        ([], {"subvol": "@"}),
+        ([], {"subvol": 0}),
+    ],
+)
+def test_mounted_device(btrfs_device, args, kwargs) -> None:
+    with sdm.mounted_device(btrfs_device, *args, **kwargs) as md:
         assert md.exists()
         assert md.is_dir()
         assert sdm.is_mounted(btrfs_device)
