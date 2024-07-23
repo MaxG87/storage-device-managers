@@ -16,19 +16,9 @@ class MyCustomTestException(Exception):
     pass
 
 
-def test_mounted_device_without_compression(btrfs_device) -> None:
-    with sdm.mounted_device(btrfs_device) as md:
-        assert md.exists()
-        assert md.is_dir()
-        assert sdm.is_mounted(btrfs_device)
-        assert md in sdm.get_mounted_devices()[str(btrfs_device)]
-    assert not md.exists()
-    assert not sdm.is_mounted(btrfs_device)
-    assert str(btrfs_device) not in sdm.get_mounted_devices()
-
-
-def test_mounted_device_with_compression(btrfs_device) -> None:
-    with sdm.mounted_device(btrfs_device, sdm.ValidCompressions.ZSTD9) as md:
+@pytest.mark.parametrize("args", [[], [sdm.ValidCompressions.ZSTD9]])
+def test_mounted_device_without_compression(btrfs_device, args) -> None:
+    with sdm.mounted_device(btrfs_device, *args) as md:
         assert md.exists()
         assert md.is_dir()
         assert sdm.is_mounted(btrfs_device)
