@@ -102,10 +102,15 @@ def test_get_mounted_devices_raises_on_unknown_device() -> None:
 
 
 def test_get_mounted_devices_includes_correct_mountpoints(mounted_directories) -> None:
-    src, dest = mounted_directories
-    assert any(
-        dest in mount_points for mount_points in sdm.get_mounted_devices().values()
-    )
+    _, dest = mounted_directories
+    all_mounts = sdm.get_mounted_devices()
+    for dest_set in all_mounts.values():
+        if dest in dest_set:
+            mount_options = dest_set[dest]
+            break
+    else:
+        raise AssertionError(f"Expected mount point {dest} not found.")
+    assert "rw" in mount_options
 
 
 def test_get_mounted_devices_includes_root() -> None:
