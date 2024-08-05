@@ -39,6 +39,9 @@ strict = true
 module = "tests.*"
 allow_incomplete_defs = true
 allow_untyped_defs = true
+disable_error_code = [
+    "possibly-undefined"
+]
 
 [tool.pytest.ini_options]
 addopts = [
