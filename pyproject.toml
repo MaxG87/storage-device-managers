@@ -24,7 +24,7 @@ pdbpp = "^0.10.3"
 pytest-cov = ">=4.1,<6.0"
 mypy = "^1.8.0"
 black = ">=23.12,<25.0"
-ruff = ">=0.5.0,<0.6.0"
+ruff = ">=0.5.0,<0.7.0"
 
 [tool.mypy]
 allow_any_unimported = false
