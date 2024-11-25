@@ -4,6 +4,7 @@ import contextlib
 import enum
 import secrets
 import string
+import typing as t
 from collections import defaultdict
 from importlib import metadata
 from pathlib import Path
@@ -252,7 +253,7 @@ def is_mounted(device: Path) -> bool:
     return True
 
 
-def get_mounted_devices() -> dict[str, set[Path]]:
+def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, frozenset[str]]]:
     """Get all mounted devices
 
     This function will parse the output of `mount` and return everything that
@@ -262,16 +263,21 @@ def get_mounted_devices() -> dict[str, set[Path]]:
 
     Returns:
     --------
-    dict
-        A dictionary mapping device names to the set of mount points.
+    t.Mapping[str, t.Mapping[Path, frozenset[str]]]
+        A mapping that maps mount sources (i.e. device names) to their
+        destinations and mount options.
     """
+    # Example line:
+    # /dev/nvme0n1p2 on /boot type ext2 (rw,relatime)
     raw_mounts = sh.run_cmd(cmd=["mount"], capture_output=True)
     mount_lines = raw_mounts.stdout.decode().splitlines()
-    mount_points = defaultdict(set)
+    mount_points: dict[str, dict[Path, frozenset[str]]] = defaultdict(dict)
     for line in mount_lines:
         device = line.split()[0]
         dest = Path(line.split()[2])
-        mount_points[device].add(dest)
+        raw_options = line.split()[5]
+        options = frozenset(raw_options.strip("()").split(","))
+        mount_points[device][dest] = options
     return dict(mount_points)
 
 
