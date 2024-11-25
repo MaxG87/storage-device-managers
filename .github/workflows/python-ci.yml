@@ -22,7 +22,7 @@ jobs:
           cache: "poetry"
       - name: Install dependencies
         run: |
-          poetry install ${{ matrix.dependency-extras }}
+          poetry install ${{ matrix.dependency-extras }} --with dev
       - name: Check formatting with black
         run: |
           poetry run black --check .

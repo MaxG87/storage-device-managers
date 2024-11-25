@@ -759,4 +759,4 @@ logging = ["loguru"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.13"
-content-hash = "c45bc80390f615f00e51074b280b41b8da729a1dcf76322f2de1b17a2e287cdc"
+content-hash = "4b36f8eb5eaa71f3ba7bb70d076efa9e7ef259e5079465f8d8a8c7ff897e0344"

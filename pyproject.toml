@@ -15,6 +15,9 @@ shell-interface = "^0.13.0"
 [tool.poetry.extras]
 logging = ["loguru"]
 
+[tool.poetry.group.dev]
+optional = true
+
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.92.1"
 pytest = ">=7.4.3,<9.0.0"
