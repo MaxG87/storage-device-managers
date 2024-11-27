@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/MaxG87/storage-device-managers/compare/v0.14.0...v0.15.0) (2024-11-26)
+
+
+### Features
+
+* Include options in return value of `get_mounted_devices()` ([cfebce5](https://github.com/MaxG87/storage-device-managers/commit/cfebce50ff802adaf34cba3320f16dc81dcc05a8))
+
 ## [0.14.0](https://github.com/MaxG87/storage-device-managers/compare/v0.13.0...v0.14.0) (2023-12-22)
 
 
