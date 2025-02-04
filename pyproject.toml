@@ -17,19 +17,17 @@ requires-python = ">=3.9,<3.14"
 logging = ["loguru"]
 
 
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-hypothesis = "^6.92.1"
-pytest = ">=7.4.3,<9.0.0"
-pynvim = "^0.5.0"
-jedi = "^0.19.1"
-pdbpp = "^0.10.3"
-pytest-cov = ">=4.1,<7.0"
-mypy = "^1.8.0"
-black = ">=23.12,<26.0"
-ruff = ">=0.5.0,<0.10.0"
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "hypothesis>=6.125.3",
+    "mypy>=1.15.0",
+    "pdbpp>=0.10.3",
+    "pynvim>=0.5.2",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.9.6",
+]
 
 [tool.mypy]
 allow_any_unimported = false
@@ -65,5 +63,5 @@ ignore = ["E", "SIM117"]
 mccabe.max-complexity = 6
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
