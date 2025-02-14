@@ -7,10 +7,10 @@ repository = "https://github.com/MaxG87/storage-device-managers"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 dependencies = [
-    "loguru (>=0.7.3,<0.8.0)",
-    "shell-interface (>=0.14.0,<0.15.0)",
+    "loguru (>=0.7.3)",
+    "shell-interface (>=0.14.0)",
 ]
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.9"
 
 
 [project.optional-dependencies]

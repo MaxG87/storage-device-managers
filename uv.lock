@@ -1,5 +1,5 @@
 version = 1
-requires-python = ">=3.9, <3.14"
+requires-python = ">=3.9"
 
 [[package]]
 name = "attrs"
@@ -565,9 +565,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "loguru", specifier = ">=0.7.3,<0.8.0" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "loguru", marker = "extra == 'logging'" },
-    { name = "shell-interface", specifier = ">=0.14.0,<0.15.0" },
+    { name = "shell-interface", specifier = ">=0.14.0" },
 ]
 
 [package.metadata.requires-dev]
