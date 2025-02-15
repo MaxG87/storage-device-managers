@@ -13,10 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install uv
-      run: pipx install 'uv==0.5.27'
+      run: pipx install 'uv==0.5.31'
     - name: Publish package
-      env:
-        PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
       run: |
         uv build
     - uses: actions/upload-artifact@v4
@@ -26,6 +24,7 @@ jobs:
 
   pypi-publish:
     name: upload release to PyPI
+    needs: [build-dist]
     runs-on: ubuntu-latest
     # Specifying a GitHub environment is optional, but strongly encouraged
     environment: pypi
