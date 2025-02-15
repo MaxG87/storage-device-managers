@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.15.1](https://github.com/MaxG87/storage-device-managers/compare/v0.15.0...v0.15.1) (2025-02-15)
+
+
+### Dependencies
+
+* Remove upper limits on all dependencies ([0237b95](https://github.com/MaxG87/storage-device-managers/commit/0237b952234e8cdba0b77e1228dc508584ea965f))
+
+
+### Documentation
+
+* Add generated README ([c0106c3](https://github.com/MaxG87/storage-device-managers/commit/c0106c38b01b378d606a58e3e4def030e2da4632))
+
 ## [0.15.0](https://github.com/MaxG87/storage-device-managers/compare/v0.14.0...v0.15.0) (2024-11-26)
 
 
