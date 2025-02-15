@@ -13,6 +13,13 @@ dependencies = [
 requires-python = ">=3.9"
 
 
+[project.urls]
+Homepage = "https://github.com/MaxG87/storage-device-managers"
+Repository = "https://github.com/MaxG87/storage-device-managers"
+Issues = "https://github.com/MaxG87/storage-device-managers/issues"
+Changelog = "https://github.com/MaxG87/storage-device-managers/blob/main/CHANGELOG.md"
+
+
 [project.optional-dependencies]
 logging = ["loguru"]
 
