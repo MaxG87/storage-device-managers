@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/MaxG87/storage-device-managers/compare/v1.0.0...v1.0.1) (2025-07-02)
+
+
+### Dependencies
+
+* **dev:** Bump all development dependencies ([949c53c](https://github.com/MaxG87/storage-device-managers/commit/949c53c7c74f7f9a03c846a58a9842a98b133eac))
+
 ## [1.0.0](https://github.com/MaxG87/storage-device-managers/compare/v0.15.1...v1.0.0) (2025-02-15)
 
 
