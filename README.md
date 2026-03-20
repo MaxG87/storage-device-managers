@@ -29,6 +29,7 @@ storage-related tasks such as:
 ## Usage
 
 ### Decrypting and Mounting a Device
+
 ```python
 from pathlib import Path
 from storage_device_managers import decrypted_device, mounted_device
@@ -40,6 +41,7 @@ with decrypted_device(Path("/dev/sdb1"), "cat /path/to/password-file") as dev:
 ```
 
 ### Encrypting a Device
+
 ```python
 from pathlib import Path
 from storage_device_managers import encrypt_device
@@ -49,6 +51,7 @@ print(f"Device encrypted with UUID: {uuid}")
 ```
 
 ### Creating a Symbolic Link
+
 ```python
 from pathlib import Path
 from storage_device_managers import symbolic_link
@@ -63,6 +66,7 @@ with symbolic_link(src, dest) as link:
 ## API Reference
 
 ### Context Managers
+
 - `decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]`
   - Decrypts a device using `cryptsetup` and returns a context-managed path.
 - `mounted_device(device: Path, compression: Optional[ValidCompressions] = None) -> Iterator[Path]`
@@ -71,6 +75,7 @@ with symbolic_link(src, dest) as link:
   - Creates and removes a symbolic link with root privileges.
 
 ### Utility Functions
+
 - `mount_btrfs_device(device: Path, mount_dir: Path, compression: Optional[ValidCompressions] = None) -> None`
 - `is_mounted(device: Path) -> bool`
 - `get_mounted_devices() -> Mapping[str, Mapping[Path, frozenset[str]]]`
@@ -83,4 +88,5 @@ with symbolic_link(src, dest) as link:
 - `chown(file_or_folder: Path, user: Union[int, str], group: Optional[Union[int, str]] = None, *, recursive: bool) -> None`
 
 ## Contributing
+
 Contributions are welcome! Please submit issues and pull requests via GitHub.
