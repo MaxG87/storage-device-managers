@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version >= '3.10'",
@@ -555,11 +555,11 @@ wheels = [
 
 [[package]]
 name = "shell-interface"
-version = "0.14.0"
+version = "1.0.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/05/1d/b65437ea191a42db11e5455008151f1acc3b46c1d1202a53fecf21295ad1/shell_interface-0.14.0.tar.gz", hash = "sha256:71ef28a786fee0c1d651790c99a80911318dc2f9bb561e3792b012e7cd953de4", size = 15303, upload-time = "2024-11-25T19:54:17.277Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a0/8f/648efc24a3cf77ad2161c8379dcd604e165b3147925d554359d65d42b2e1/shell_interface-1.0.2.tar.gz", hash = "sha256:7120dce6fcf11ab45b2cd24fbcc881666a1861c1b88f53773ec3702646b26856", size = 15331, upload-time = "2026-01-10T11:31:42.136Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/f2/d167412c11288b7ae5503a892d07d38d12ee81cf5b090da94c87b9a0b991/shell_interface-0.14.0-py3-none-any.whl", hash = "sha256:c0c21c01c8ce55b4b1f4a427dd950b47eab44c1b51018153a0a8a62a6f98dccb", size = 15819, upload-time = "2024-11-25T19:54:16.271Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/7a/01f195b3b083f758c3ce797dcbf4f52603bcbdbe1b3397d52d8bb2f99d42/shell_interface-1.0.2-py3-none-any.whl", hash = "sha256:2e8fdd5bfaca5be19caf718122836f4b95b96a8efce4e8942790e350539d9a93", size = 16192, upload-time = "2026-01-10T11:31:40.928Z" },
 ]
 
 [[package]]
@@ -601,7 +601,7 @@ dev = [
 requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "loguru", marker = "extra == 'logging'" },
-    { name = "shell-interface", specifier = ">=0.14.0" },
+    { name = "shell-interface", specifier = ">=1.0.2" },
 ]
 provides-extras = ["logging"]
 
