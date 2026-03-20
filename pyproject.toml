@@ -26,11 +26,9 @@ logging = ["loguru"]
 
 [dependency-groups]
 dev = [
-    "black>=25.11.0",
     "hypothesis>=6.141.1",
     "mypy>=1.19.1",
     "pdbpp>=0.12.1",
-    "pynvim>=0.6.0",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "ruff>=0.15.7",
