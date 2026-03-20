@@ -70,6 +70,35 @@ class ValidCompressions(enum.Enum):
 
 
 @contextlib.contextmanager
+def temoprary_directory() -> Iterator[Path]:
+    """Create a temporary directory
+
+    This context manager will create a temporary directory and return its path.
+    Upon exit, the directory is removed again.
+
+    Returns:
+    --------
+    Path
+        path to the created temporary directory
+    """
+    tmpdir = Path(tempfile.mkdtemp())
+    try:
+        yield tmpdir
+    except UnmountError:
+        # In case unmounting fails, the mount directory cannot be removed, because it is
+        # "busy". There is no use in trying to do `mount_dir.rmdir()`.
+        raise
+    except Exception:
+        tmpdir.rmdir()
+        raise
+    # Try to remove the mount directory. Path.rmdir() will only succeed if the directory
+    # is empty, so if anything happened, mount_dir's contents will not be silently
+    # deleted. Previously, shutil.rmtree was used implicitly via TemporaryDirectory,
+    # which caused the loss of two terabytes of backup data when unmounting failed.
+    tmpdir.rmdir()
+
+
+@contextlib.contextmanager
 def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
     """Decrypt a given device using pass_cmd
 
@@ -140,8 +169,7 @@ def mounted_device(
     """
     if is_mounted(device):
         unmount_device(device)
-    mount_dir = Path(tempfile.mkdtemp())
-    try:
+    with temoprary_directory() as mount_dir:
         mount_btrfs_device(device, mount_dir, compression)
         logger.success(
             f"Speichermedium {device} erfolgreich nach {mount_dir} gemountet."
@@ -153,22 +181,6 @@ def mounted_device(
             logger.success(
                 "Speichermedium {device} erfolgreich ausgehangen.", device=device
             )
-    except UnmountError:
-        # Explicit error handling for UnmountError to improve error reporting.
-        logger.error(
-            "Fehler beim Aushängen von {device} nach der Benutzung.", device=device
-        )
-        # In case unmounting fails, the mount directory cannot be removed, because it is
-        # "busy". There is no use in trying to do `mount_dir.rmdir()`.
-        raise
-    except Exception:
-        mount_dir.rmdir()
-        raise
-    # Try to remove the mount directory. Path.rmdir() will only succeed if the directory
-    # is empty, so if anything happened, mount_dir's contents will not be silently
-    # deleted. Previously, shutil.rmtree was used implicitly via TemporaryDirectory,
-    # which caused the loss of two terabytes of backup data when unmounting failed.
-    mount_dir.rmdir()
 
 
 @contextlib.contextmanager
