@@ -4,11 +4,11 @@ import contextlib
 import enum
 import secrets
 import string
+import tempfile
 import typing as t
 from collections import defaultdict
 from importlib import metadata
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from typing import Iterator, Optional, Union
 from uuid import UUID, uuid4
@@ -140,9 +140,9 @@ def mounted_device(
     """
     if is_mounted(device):
         unmount_device(device)
-    with TemporaryDirectory() as td:
-        mount_dir = Path(td)
-        mount_btrfs_device(device, Path(mount_dir), compression)
+    mount_dir = Path(tempfile.mkdtemp())
+    try:
+        mount_btrfs_device(device, mount_dir, compression)
         logger.success(
             f"Speichermedium {device} erfolgreich nach {mount_dir} gemountet."
         )
@@ -150,7 +150,25 @@ def mounted_device(
             yield Path(mount_dir)
         finally:
             unmount_device(device)
-            logger.success(f"Speichermedium {device} erfolgreich ausgehangen.")
+            logger.success(
+                "Speichermedium {device} erfolgreich ausgehangen.", device=device
+            )
+    except UnmountError:
+        # Explicit error handling for UnmountError to improve error reporting.
+        logger.error(
+            "Fehler beim Aushängen von {device} nach der Benutzung.", device=device
+        )
+        # In case unmounting fails, the mount directory cannot be removed, because it is
+        # "busy". There is no use in trying to do `mount_dir.rmdir()`.
+        raise
+    except Exception:
+        mount_dir.rmdir()
+        raise
+    # Try to remove the mount directory. Path.rmdir() will only succeed if the directory
+    # is empty, so if anything happened, mount_dir's contents will not be silently
+    # deleted. Previously, shutil.rmtree was used implicitly via TemporaryDirectory,
+    # which caused the loss of two terabytes of backup data when unmounting failed.
+    mount_dir.rmdir()
 
 
 @contextlib.contextmanager
