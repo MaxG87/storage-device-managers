@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.0.1](https://github.com/MaxG87/storage-device-managers/compare/v1.0.0...v1.0.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* Fix dramatic bug of deleting all content after failed unmount ([b53c5ff](https://github.com/MaxG87/storage-device-managers/commit/b53c5ffe3fdf44f8eb7867143365f2ce3e890880))
+
+
+### Dependencies
+
+* Bump minimum Python version to 3.10 ([6ca9e82](https://github.com/MaxG87/storage-device-managers/commit/6ca9e820373a64b96b68ece48f35332c829d71b7))
+* Bump shell-interface to v1.0.2 ([2917e21](https://github.com/MaxG87/storage-device-managers/commit/2917e2130ee19e5bf3320f2fd810d81d8e10b80f))
+* **dev:** Bump all dev-dependencies ([949af96](https://github.com/MaxG87/storage-device-managers/commit/949af96cbeb7eb25105c809807f9899f23fc4de9))
+* **dev:** Bump all development dependencies ([949c53c](https://github.com/MaxG87/storage-device-managers/commit/949c53c7c74f7f9a03c846a58a9842a98b133eac))
+* **dev:** Drop two unneeded requirements ([eb55455](https://github.com/MaxG87/storage-device-managers/commit/eb554558c6c558518c9a38ca82894e25384957d1))
+
+
+### Documentation
+
+* Minor formatting changes ([f32e26c](https://github.com/MaxG87/storage-device-managers/commit/f32e26cace4ee4abcf7dbb35e9ee792bbd676e00))
+
 ## [1.0.0](https://github.com/MaxG87/storage-device-managers/compare/v0.15.1...v1.0.0) (2025-02-15)
 
 
