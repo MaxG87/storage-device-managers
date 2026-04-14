@@ -502,6 +502,6 @@ def chown(
 
     user_spec = str(user) if group is None else f"{user}:{group}"
     chown_cmd: sh.StrPathList = ["sudo", "chown", user_spec, file_or_folder]
-    if recursive is not None:
+    if recursive:
         chown_cmd.append("--recursive")
     sh.run_cmd(cmd=chown_cmd)
