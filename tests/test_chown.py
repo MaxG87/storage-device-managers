@@ -60,14 +60,17 @@ def test_chown_recursive(directory_with_content):
 
 
 def test_chown_directory_not_recursive(directory_with_content):
-    directory, file = directory_with_content
-    nested_items = list(directory.rglob("*"))
-
-    initial_nested_owners = {cur.owner() for cur in nested_items}
-    assert initial_nested_owners == {"root"}
-
+    directory, _ = directory_with_content
     expected_user = sh.get_user()
+    expected_nested_owners = {"root"}
+
+    nested_items = list(directory.rglob("*"))
+    initial_nested_owners = {cur.owner() for cur in nested_items}
+    assert initial_nested_owners == expected_nested_owners
+
     sdm.chown(directory, expected_user, recursive=False)
 
+    result_root_owner = directory.owner()
     result_nested_owners = {cur.owner() for cur in nested_items}
-    assert result_nested_owners == {"root"}
+    assert result_root_owner == expected_user
+    assert result_nested_owners == expected_nested_owners
