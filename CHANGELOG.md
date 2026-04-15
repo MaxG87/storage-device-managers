@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/MaxG87/storage-device-managers/compare/v1.0.1...v1.0.2) (2026-04-15)
+
+
+### Bug Fixes
+
+* **build:** Fix lock file ([1627e18](https://github.com/MaxG87/storage-device-managers/commit/1627e18c03d55f02188162f7440b70fdf3ed2da3))
+* use `if recursive:` instead of `if recursive is not None:` in chown ([bdc7633](https://github.com/MaxG87/storage-device-managers/commit/bdc763333817656099d92dc600e680b93b372058))
+
 ## [1.0.1](https://github.com/MaxG87/storage-device-managers/compare/v1.0.0...v1.0.1) (2026-03-22)
 
 
