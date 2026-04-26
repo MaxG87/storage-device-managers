@@ -442,6 +442,19 @@ def mkfs_btrfs(device: Path) -> None:
     sh.run_cmd(cmd=cmd)
 
 
+def mkfs_ext4(device: Path) -> None:
+    """Format device with ext4
+
+    Parameters:
+    -----------
+    device
+        file-like object to be formatted
+    """
+
+    cmd: sh.StrPathList = ["sudo", "mkfs.ext4", device]
+    sh.run_cmd(cmd=cmd)
+
+
 def generate_passcmd() -> str:
     """
     Generate `echo` safe password and return PassCmd
