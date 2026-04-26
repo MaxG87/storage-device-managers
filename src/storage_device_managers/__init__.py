@@ -24,6 +24,7 @@ except ModuleNotFoundError:
 
 __version__ = metadata.version(__name__)
 
+MountOptions = frozenset[str]
 ValidFileSystems = t.Literal["btrfs", "ext4"]
 
 
@@ -333,25 +334,37 @@ def is_mounted(device: Path) -> bool:
     return True
 
 
-def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, frozenset[str]]]:
+def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, MountOptions]]:
     """Get all mounted devices
 
-    This function will parse the output of `mount` and return everything that
-    is mounted to somewhere. Since a source can be mounted to multiple
-    destinations, the return value is a dictionary mapping device names to sets
-    of mount points.
+    This function will parse the output of `mount` and return everything that is mounted
+    to somewhere. The returned mapping maps device names (i.e. mount sources) to their
+    destinations and mount options.
+
+    Since a source can be mounted to multiple (e.g. /dev/sda1 can be mounted to
+    /home/{user1,user2}/Videos), the value of the mapping is another mapping. This inner
+    mapping maps mount destinations to their mount options.
 
     Returns:
     --------
-    t.Mapping[str, t.Mapping[Path, frozenset[str]]]
+    t.Mapping[str, t.Mapping[Path, MountOptions]]
         A mapping that maps mount sources (i.e. device names) to their
         destinations and mount options.
+
+    Example Return Value:
+    ---------------------
+    {
+        "/dev/nvme0n1p2": {
+            Path("/boot"): frozenset({"rw", "relatime"}),
+            Path("/media/backup"): frozenset({"rw", "relatime", "compress=zstd:3"}),
+        },
+    }
     """
     # Example line:
     # /dev/nvme0n1p2 on /boot type ext2 (rw,relatime)
     raw_mounts = sh.run_cmd(cmd=["mount"], capture_output=True)
     mount_lines = raw_mounts.stdout.decode().splitlines()
-    mount_points: dict[str, dict[Path, frozenset[str]]] = defaultdict(dict)
+    mount_points: dict[str, dict[Path, MountOptions]] = defaultdict(dict)
     for line in mount_lines:
         device = line.split()[0]
         dest = Path(line.split()[2])
@@ -361,11 +374,45 @@ def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, frozenset[str]]]:
     return dict(mount_points)
 
 
+def sync_device(device: Path) -> None:
+    """Sync a device's filesystem
+
+    This function flushes pending writes to the given device. For BtrFS
+    devices, it additionally performs a BtrFS-specific filesystem sync on each
+    of the device's mount points.
+
+    Parameters:
+    -----------
+    device
+        The device to be synced.
+    """
+    sync_cmd: sh.StrPathList = ["sudo", "sync", "-f", device]
+
+    try:
+        fs = get_filesystem(device)
+    except sh.ShellInterfaceError:
+        fs = None
+    if fs == "btrfs":
+        mounted = get_mounted_devices()
+        mount_points = mounted.get(str(device), {})
+        for mount_dir in mount_points:
+            btrfs_sync_cmd: sh.StrPathList = [
+                "sudo",
+                "btrfs",
+                "filesystem",
+                "sync",
+                mount_dir,
+            ]
+            sh.run_cmd(cmd=btrfs_sync_cmd)
+    sh.run_cmd(cmd=sync_cmd)
+
+
 def unmount_device(device: Path) -> None:
     """Unmount a given device
 
     This function will unmount a given device. It relies on the system's
-    `umount` programm to do so.
+    `umount` program to do so. Before unmounting, the device's filesystem is
+    synced to flush any pending writes.
 
     Parameters:
     -----------
@@ -377,6 +424,7 @@ def unmount_device(device: Path) -> None:
     UnmountError
         if `umount` returns a non-zero exit code
     """
+    sync_device(device)
     cmd: sh.StrPathList = ["sudo", "umount", device]
     try:
         sh.run_cmd(cmd=cmd)
