@@ -16,6 +16,12 @@ def get_random_filename(dir_: str) -> str:
     return ntf.name
 
 
+@pytest.fixture(params=["btrfs_device", "ext4_device"])
+def device_with_fs(request) -> tuple[Path, sdm.ValidFileSystems]:
+    filesystem = request.param.split("_")[0]
+    return (request.getfixturevalue(request.param), filesystem)
+
+
 @pytest.fixture
 def mounted_directories():
     with TemporaryDirectory() as src:
