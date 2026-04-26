@@ -387,13 +387,11 @@ def sync_device(device: Path) -> None:
         The device to be synced.
     """
     sync_cmd: sh.StrPathList = ["sudo", "sync", "-f", device]
-    sh.run_cmd(cmd=sync_cmd)
 
     try:
         fs = get_filesystem(device)
     except sh.ShellInterfaceError:
-        fs = ""
-
+        fs = None
     if fs == "btrfs":
         mounted = get_mounted_devices()
         mount_points = mounted.get(str(device), {})
@@ -406,6 +404,7 @@ def sync_device(device: Path) -> None:
                 mount_dir,
             ]
             sh.run_cmd(cmd=btrfs_sync_cmd)
+    sh.run_cmd(cmd=sync_cmd)
 
 
 def unmount_device(device: Path) -> None:
