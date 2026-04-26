@@ -257,6 +257,28 @@ def mount_btrfs_device(
     sh.run_cmd(cmd=cmd)
 
 
+def mount_ext4_device(device: Path, mount_dir: Path) -> None:
+    """
+    Mount a given ext4 device
+
+    Given a path pointing to a file-like object and a target directory, this function
+    will mount the device to the target directory.
+
+    The filesystem of `device` must be ext4. While technically other file systems
+    might work too, this behaviour is not guaranteed and might be broken without
+    further notice!
+
+    Parameters:
+    -----------
+    device
+        file-like object to be mounted
+    mount_dir
+        directory to which `device` is mounted
+    """
+    cmd: sh.StrPathList = ["sudo", "mount", "-t", "ext4", device, mount_dir]
+    sh.run_cmd(cmd=cmd)
+
+
 def is_mounted(device: Path) -> bool:
     """Check whether a given device is mounted
 

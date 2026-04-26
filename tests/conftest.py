@@ -98,3 +98,20 @@ def btrfs_device(_btrfs_device_persistent):
         file = Path(ntf.name)
         shutil.copy(_btrfs_device_persistent, file)
         yield file
+
+
+@pytest.fixture(scope="session")
+def _ext4_device_persistent(_big_file_persistent):
+    with NamedTemporaryFile() as ntf:
+        ext4_device = Path(ntf.name)
+        shutil.copy(_big_file_persistent, ext4_device)
+        sdm.mkfs_ext4(ext4_device)
+        yield ext4_device
+
+
+@pytest.fixture
+def ext4_device(_ext4_device_persistent):
+    with NamedTemporaryFile() as ntf:
+        file = Path(ntf.name)
+        shutil.copy(_ext4_device_persistent, file)
+        yield file
