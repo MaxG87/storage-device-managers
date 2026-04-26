@@ -441,11 +441,11 @@ wheels = [
 
 [[package]]
 name = "shell-interface"
-version = "1.0.2"
+version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a0/8f/648efc24a3cf77ad2161c8379dcd604e165b3147925d554359d65d42b2e1/shell_interface-1.0.2.tar.gz", hash = "sha256:7120dce6fcf11ab45b2cd24fbcc881666a1861c1b88f53773ec3702646b26856", size = 15331, upload-time = "2026-01-10T11:31:42.136Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/4d/3339a6f734bc1a21f663cf501fe8f525e57de7110b817a3a8993fb89c4ec/shell_interface-2.0.0.tar.gz", hash = "sha256:bf78d220a7c7fb9a699d1030db7ebc4945829f8f312ce0c130dea95526870ed6", size = 15412, upload-time = "2026-04-26T11:20:44.052Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/7a/01f195b3b083f758c3ce797dcbf4f52603bcbdbe1b3397d52d8bb2f99d42/shell_interface-1.0.2-py3-none-any.whl", hash = "sha256:2e8fdd5bfaca5be19caf718122836f4b95b96a8efce4e8942790e350539d9a93", size = 16192, upload-time = "2026-01-10T11:31:40.928Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/aa/81ed389c0139ff5364c1b06015817cc7f44b84921237aa6fa6d33a5a99dc/shell_interface-2.0.0-py3-none-any.whl", hash = "sha256:9fcb39b0d680ec67731396f33179181c2c30fbd96c48d0da9c9886037931e676", size = 16293, upload-time = "2026-04-26T11:20:42.496Z" },
 ]
 
 [[package]]
@@ -487,7 +487,7 @@ dev = [
 requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "loguru", marker = "extra == 'logging'" },
-    { name = "shell-interface", specifier = ">=1.0.2" },
+    { name = "shell-interface", specifier = ">=2.0.0" },
 ]
 provides-extras = ["logging"]
 

@@ -126,6 +126,8 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
 
     Raises:
     -------
+    shell_interface.PassCmdError
+        if the password command returns a non-zero exit code
     DeviceDecryptionError
         if cryptsetup returns a non-zero exit code
     """
@@ -400,6 +402,8 @@ def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
 
     Raises:
     -------
+    shell_interface.PassCmdError
+        if the password command returns a non-zero exit code
     DeviceDecryptionError
         if cryptsetup returns a non-zero exit code
     """
@@ -462,6 +466,13 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     --------
     UUID
         UUID of the new LUKS partition
+
+    Raises:
+    -------
+    shell_interface.PassCmdError
+        if the password command returns a non-zero exit code
+    shell_interface.ShellInterfaceError
+        if the cryptsetup command returns a non-zero exit code
     """
     new_uuid = uuid4()
     format_cmd: sh.StrPathList = [

@@ -174,3 +174,28 @@ def test_encrypt_device_reports_correct_uuid(big_file) -> None:
     uuid_check_proc = sh.run_cmd(cmd=uuid_check_cmd, capture_output=True)
     reported_uuid = UUID(uuid_check_proc.stdout.decode().strip())
     assert result_uuid == reported_uuid
+
+
+def test_open_encrypted_device_raises_passcmderror_on_bad_pass_cmd(
+    encrypted_device,
+) -> None:
+    device, _ = encrypted_device
+    bad_pass_cmd = "exit 1"
+    with pytest.raises(sh.PassCmdError):
+        sdm.open_encrypted_device(device=device, pass_cmd=bad_pass_cmd)
+
+
+def test_decrypted_device_raises_passcmderror_on_bad_pass_cmd(
+    encrypted_device,
+) -> None:
+    device, _ = encrypted_device
+    bad_pass_cmd = "exit 1"
+    with pytest.raises(sh.PassCmdError):
+        with sdm.decrypted_device(device=device, pass_cmd=bad_pass_cmd):
+            pass
+
+
+def test_encrypt_device_raises_passcmderror_on_bad_pass_cmd(big_file) -> None:
+    bad_pass_cmd = "exit 1"
+    with pytest.raises(sh.PassCmdError):
+        sdm.encrypt_device(big_file, bad_pass_cmd)
