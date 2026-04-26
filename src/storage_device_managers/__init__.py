@@ -279,6 +279,31 @@ def mount_ext4_device(device: Path, mount_dir: Path) -> None:
     sh.run_cmd(cmd=cmd)
 
 
+def mount_device(device: Path, mount_dir: Path) -> None:
+    """Mount a device without knowing its file system type
+
+    Given a path pointing to a file-like object and a target directory, this
+    function will detect the file system of the device and mount it to the
+    target directory using the appropriate mount function.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be mounted
+    mount_dir
+        directory to which `device` is mounted
+    """
+    fs = get_filesystem(device)
+    match fs:
+        case "btrfs":
+            mount_btrfs_device(device, mount_dir)
+        case "ext4":
+            mount_ext4_device(device, mount_dir)
+        case _:
+            cmd: sh.StrPathList = ["sudo", "mount", device, mount_dir]
+            sh.run_cmd(cmd=cmd)
+
+
 def is_mounted(device: Path) -> bool:
     """Check whether a given device is mounted
 
