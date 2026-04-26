@@ -249,12 +249,7 @@ def mount_btrfs_device(
     compression
         compression level to be used by BtrFS
     """
-    cmd: sh.StrPathList = [
-        "sudo",
-        "mount",
-        device,
-        mount_dir,
-    ]
+    cmd: sh.StrPathList = ["sudo", "mount", device, mount_dir]
     if compression is not None:
         cmd.extend(["-o", f"compress={compression.value}"])
     sh.run_cmd(cmd=cmd)
