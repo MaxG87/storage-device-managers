@@ -26,6 +26,8 @@ except ModuleNotFoundError:
 
 __version__ = metadata.version(__name__)
 
+ValidFileSystems = t.Literal["btrfs", "ext4"]
+
 
 class DeviceDecryptionError(RuntimeError):
     pass
