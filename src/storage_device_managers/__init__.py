@@ -534,6 +534,28 @@ def mkfs_ext4(device: Path) -> None:
     sh.run_cmd(cmd=cmd)
 
 
+def mkfs(device: Path, filesystem: ValidFileSystems) -> None:
+    """Format device with the given file system
+
+    This function formats the given device with the specified file system,
+    so the caller does not need to branch on the file system type themselves.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be formatted
+    filesystem
+        the file system to use for formatting
+    """
+    match filesystem:
+        case "btrfs":
+            mkfs_btrfs(device)
+        case "ext4":
+            mkfs_ext4(device)
+        case _:
+            t.assert_never(filesystem)
+
+
 def generate_passcmd() -> str:
     """
     Generate `echo` safe password and return PassCmd
