@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import contextlib
 import enum
 import secrets
@@ -7,10 +5,10 @@ import string
 import tempfile
 import typing as t
 from collections import defaultdict
+from collections.abc import Iterator
 from importlib import metadata
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Iterator, Optional, Union
 from uuid import UUID, uuid4
 
 import shell_interface as sh
@@ -41,7 +39,7 @@ class UnmountError(RuntimeError):
     pass
 
 
-class ValidCompressions(enum.Enum):
+class ValidCompressions(enum.StrEnum):
     LZO = "lzo"
     ZLIB = "zlib"
     ZLIB1 = "zlib:1"
@@ -144,7 +142,7 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
 
 @contextlib.contextmanager
 def mounted_device(
-    device: Path, compression: Optional[ValidCompressions] = None
+    device: Path, compression: ValidCompressions | None = None
 ) -> Iterator[Path]:
     """Mount a given BtrFS device
 
@@ -227,7 +225,7 @@ def symbolic_link(src: Path, dest: Path) -> Iterator[Path]:
 
 
 def mount_btrfs_device(
-    device: Path, mount_dir: Path, compression: Optional[ValidCompressions] = None
+    device: Path, mount_dir: Path, compression: ValidCompressions | None = None
 ) -> None:
     """
     Mount a given BtrFS device
@@ -253,7 +251,7 @@ def mount_btrfs_device(
     """
     cmd: sh.StrPathList = ["sudo", "mount", device, mount_dir]
     if compression is not None:
-        cmd.extend(["-o", f"compress={compression.value}"])
+        cmd.extend(["-o", f"compress={compression}"])
     sh.run_cmd(cmd=cmd)
 
 
@@ -580,8 +578,8 @@ def generate_passcmd() -> str:
 def chown(
     file_or_folder: Path,
     /,
-    user: Union[int, str],
-    group: Optional[Union[int, str]] = None,
+    user: int | str,
+    group: int | str | None = None,
     *,
     recursive: bool,
 ) -> None:
