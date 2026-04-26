@@ -451,6 +451,27 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     return new_uuid
 
 
+def get_filesystem(device: Path) -> str:
+    """Get the file system type of a given device or path
+
+    This function will query the file system type of the given device using
+    `blkid`.
+
+    Parameters:
+    -----------
+    device
+        file-like object whose file system type to determine
+
+    Returns:
+    --------
+    str
+        the file system type (e.g. ``"btrfs"`` or ``"ext4"``)
+    """
+    cmd: sh.StrPathList = ["sudo", "blkid", "-o", "value", "-s", "TYPE", device]
+    result = sh.run_cmd(cmd=cmd, capture_output=True)
+    return result.stdout.decode().strip()
+
+
 def mkfs_btrfs(device: Path) -> None:
     """Format device with BtrFS
 
