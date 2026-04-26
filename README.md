@@ -73,6 +73,7 @@ with symbolic_link(src, dest) as link:
 - `decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]`
   - Decrypts a device using `cryptsetup` and returns a context-managed path.
   - Raises `shell_interface.PassCmdError` if the password command fails.
+  - Raises `shell_interface.ShellInterfaceError` on other shell-related errors.
 - `mounted_device(device: Path, compression: Optional[ValidCompressions] = None) -> Iterator[Path]`
   - Mounts a device to a temporary directory, auto-detecting the file system type. For BtrFS, optional compression settings are supported.
 - `symbolic_link(src: Path, dest: Path) -> Iterator[Path]`
@@ -89,9 +90,11 @@ with symbolic_link(src, dest) as link:
 - `unmount_device(device: Path) -> None`
 - `open_encrypted_device(device: Path, pass_cmd: str) -> Path`
   - Raises `shell_interface.PassCmdError` if the password command fails.
+  - Raises `shell_interface.ShellInterfaceError` on other shell-related errors.
 - `close_decrypted_device(device: Path) -> None`
 - `encrypt_device(device: Path, password_cmd: str) -> UUID`
   - Raises `shell_interface.PassCmdError` if the password command fails.
+  - Raises `shell_interface.ShellInterfaceError` on other shell-related errors.
 - `mkfs(device: Path, filesystem: ValidFileSystems) -> None`
 - `mkfs_btrfs(device: Path) -> None`
 - `mkfs_ext4(device: Path) -> None`
