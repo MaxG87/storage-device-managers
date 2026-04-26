@@ -361,11 +361,46 @@ def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, frozenset[str]]]:
     return dict(mount_points)
 
 
+def sync_device(device: Path) -> None:
+    """Sync a device's filesystem
+
+    This function flushes pending writes to the given device. For BtrFS
+    devices, it additionally performs a BtrFS-specific filesystem sync on each
+    of the device's mount points.
+
+    Parameters:
+    -----------
+    device
+        The device to be synced.
+    """
+    sync_cmd: sh.StrPathList = ["sudo", "sync", "-f", device]
+    sh.run_cmd(cmd=sync_cmd)
+
+    try:
+        fs = get_filesystem(device)
+    except sh.ShellInterfaceError:
+        fs = ""
+
+    if fs == "btrfs":
+        mounted = get_mounted_devices()
+        mount_points = mounted.get(str(device), {})
+        for mount_dir in mount_points:
+            btrfs_sync_cmd: sh.StrPathList = [
+                "sudo",
+                "btrfs",
+                "filesystem",
+                "sync",
+                mount_dir,
+            ]
+            sh.run_cmd(cmd=btrfs_sync_cmd)
+
+
 def unmount_device(device: Path) -> None:
     """Unmount a given device
 
     This function will unmount a given device. It relies on the system's
-    `umount` programm to do so.
+    `umount` program to do so. Before unmounting, the device's filesystem is
+    synced to flush any pending writes.
 
     Parameters:
     -----------
@@ -377,6 +412,7 @@ def unmount_device(device: Path) -> None:
     UnmountError
         if `umount` returns a non-zero exit code
     """
+    sync_device(device)
     cmd: sh.StrPathList = ["sudo", "umount", device]
     try:
         sh.run_cmd(cmd=cmd)
