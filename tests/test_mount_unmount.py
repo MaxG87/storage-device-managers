@@ -17,6 +17,27 @@ class MyCustomTestException(Exception):
     pass
 
 
+def test_mount_ext4_device(ext4_device) -> None:
+    with TemporaryDirectory() as mount_dir:
+        mount_path = Path(mount_dir)
+        sdm.mount_ext4_device(ext4_device, mount_path)
+        assert sdm.is_mounted(ext4_device)
+        assert mount_path in sdm.get_mounted_devices()[str(ext4_device)]
+        sdm.unmount_device(ext4_device)
+        assert not sdm.is_mounted(ext4_device)
+
+
+def test_mount_device(device_with_fs) -> None:
+    device, _ = device_with_fs
+    with TemporaryDirectory() as mount_dir:
+        mount_path = Path(mount_dir)
+        sdm.mount_device(device, mount_path)
+        assert sdm.is_mounted(device)
+        assert mount_path in sdm.get_mounted_devices()[str(device)]
+        sdm.unmount_device(device)
+        assert not sdm.is_mounted(device)
+
+
 @pytest.mark.parametrize("args", [[], [sdm.ValidCompressions.ZSTD9]])
 def test_mounted_device_without_compression(btrfs_device, args) -> None:
     with sdm.mounted_device(btrfs_device, *args) as md:

@@ -26,6 +26,8 @@ except ModuleNotFoundError:
 
 __version__ = metadata.version(__name__)
 
+ValidFileSystems = t.Literal["btrfs", "ext4"]
+
 
 class DeviceDecryptionError(RuntimeError):
     pass
@@ -124,6 +126,8 @@ def decrypted_device(device: Path, pass_cmd: str) -> Iterator[Path]:
 
     Raises:
     -------
+    shell_interface.PassCmdError
+        if the password command returns a non-zero exit code
     DeviceDecryptionError
         if cryptsetup returns a non-zero exit code
     """
@@ -148,12 +152,10 @@ def mounted_device(
     mount it to some temporary directory and return its path. Upon exit, the
     file-like object is unmounted again.
 
-    The filesystem of `device` must be BtrFS. While technically other file
-    systems might work too, this behaviour is not guaranteed and might be
-    broken without further notice!
-
     If `compression` is provided, a mount option specifying the transparent
-    file system compression is set.
+    file system compression is set. Compression is only supported for BtrFS
+    devices. If `compression` is given for a non-BtrFS device, it is silently
+    ignored.
 
     Parameters:
     -----------
@@ -170,7 +172,7 @@ def mounted_device(
     if is_mounted(device):
         unmount_device(device)
     with temoprary_directory() as mount_dir:
-        mount_btrfs_device(device, mount_dir, compression)
+        mount_device(device, mount_dir, compression)
         logger.success(
             f"Speichermedium {device} erfolgreich nach {mount_dir} gemountet."
         )
@@ -249,15 +251,65 @@ def mount_btrfs_device(
     compression
         compression level to be used by BtrFS
     """
-    cmd: sh.StrPathList = [
-        "sudo",
-        "mount",
-        device,
-        mount_dir,
-    ]
+    cmd: sh.StrPathList = ["sudo", "mount", device, mount_dir]
     if compression is not None:
         cmd.extend(["-o", f"compress={compression.value}"])
     sh.run_cmd(cmd=cmd)
+
+
+def mount_ext4_device(device: Path, mount_dir: Path) -> None:
+    """
+    Mount a given ext4 device
+
+    Given a path pointing to a file-like object and a target directory, this function
+    will mount the device to the target directory.
+
+    The filesystem of `device` must be ext4. While technically other file systems
+    might work too, this behaviour is not guaranteed and might be broken without
+    further notice!
+
+    Parameters:
+    -----------
+    device
+        file-like object to be mounted
+    mount_dir
+        directory to which `device` is mounted
+    """
+    cmd: sh.StrPathList = ["sudo", "mount", "-t", "ext4", device, mount_dir]
+    sh.run_cmd(cmd=cmd)
+
+
+def mount_device(
+    device: Path, mount_dir: Path, compression: ValidCompressions | None = None
+) -> None:
+    """Mount a device without knowing its file system type
+
+    Given a path pointing to a file-like object and a target directory, this
+    function will detect the file system of the device and mount it to the
+    target directory using the appropriate mount function.
+
+    If `compression` is provided and the file system of `device` is BtrFS, a mount
+    option specifying the transparent file system compression is set. For other file
+    systems, `compression` is silently ignored.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be mounted
+    mount_dir
+        directory to which `device` is mounted
+    compression
+        compression level to be used by BtrFS
+    """
+    fs = get_filesystem(device)
+    match fs:
+        case "btrfs":
+            mount_btrfs_device(device, mount_dir, compression)
+        case "ext4":
+            mount_ext4_device(device, mount_dir)
+        case _:
+            cmd: sh.StrPathList = ["sudo", "mount", device, mount_dir]
+            sh.run_cmd(cmd=cmd)
 
 
 def is_mounted(device: Path) -> bool:
@@ -356,6 +408,8 @@ def open_encrypted_device(device: Path, pass_cmd: str) -> Path:
 
     Raises:
     -------
+    shell_interface.PassCmdError
+        if the password command returns a non-zero exit code
     DeviceDecryptionError
         if cryptsetup returns a non-zero exit code
     """
@@ -418,6 +472,13 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     --------
     UUID
         UUID of the new LUKS partition
+
+    Raises:
+    -------
+    shell_interface.PassCmdError
+        if the password command returns a non-zero exit code
+    shell_interface.ShellInterfaceError
+        if the cryptsetup command returns a non-zero exit code
     """
     new_uuid = uuid4()
     format_cmd: sh.StrPathList = [
@@ -432,6 +493,27 @@ def encrypt_device(device: Path, password_cmd: str) -> UUID:
     return new_uuid
 
 
+def get_filesystem(device: Path) -> str:
+    """Get the file system type of a given device or path
+
+    This function will query the file system type of the given device using
+    `blkid`.
+
+    Parameters:
+    -----------
+    device
+        file-like object whose file system type to determine
+
+    Returns:
+    --------
+    str
+        the file system type (e.g. ``"btrfs"`` or ``"ext4"``)
+    """
+    cmd: sh.StrPathList = ["sudo", "blkid", "-o", "value", "-s", "TYPE", device]
+    result = sh.run_cmd(cmd=cmd, capture_output=True)
+    return result.stdout.decode().strip()
+
+
 def mkfs_btrfs(device: Path) -> None:
     """Format device with BtrFS
 
@@ -443,6 +525,41 @@ def mkfs_btrfs(device: Path) -> None:
 
     cmd: sh.StrPathList = ["sudo", "mkfs.btrfs", device]
     sh.run_cmd(cmd=cmd)
+
+
+def mkfs_ext4(device: Path) -> None:
+    """Format device with ext4
+
+    Parameters:
+    -----------
+    device
+        file-like object to be formatted
+    """
+
+    cmd: sh.StrPathList = ["sudo", "mkfs.ext4", device]
+    sh.run_cmd(cmd=cmd)
+
+
+def mkfs(device: Path, filesystem: ValidFileSystems) -> None:
+    """Format device with the given file system
+
+    This function formats the given device with the specified file system,
+    so the caller does not need to branch on the file system type themselves.
+
+    Parameters:
+    -----------
+    device
+        file-like object to be formatted
+    filesystem
+        the file system to use for formatting
+    """
+    match filesystem:
+        case "btrfs":
+            mkfs_btrfs(device)
+        case "ext4":
+            mkfs_ext4(device)
+        case _:
+            t.assert_never(filesystem)
 
 
 def generate_passcmd() -> str:

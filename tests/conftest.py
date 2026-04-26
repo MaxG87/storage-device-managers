@@ -16,6 +16,12 @@ def get_random_filename(dir_: str) -> str:
     return ntf.name
 
 
+@pytest.fixture(params=["btrfs_device", "ext4_device"])
+def device_with_fs(request) -> tuple[Path, sdm.ValidFileSystems]:
+    filesystem = request.param.split("_")[0]
+    return (request.getfixturevalue(request.param), filesystem)
+
+
 @pytest.fixture
 def mounted_directories():
     with TemporaryDirectory() as src:
@@ -97,4 +103,21 @@ def btrfs_device(_btrfs_device_persistent):
     with NamedTemporaryFile() as ntf:
         file = Path(ntf.name)
         shutil.copy(_btrfs_device_persistent, file)
+        yield file
+
+
+@pytest.fixture(scope="session")
+def _ext4_device_persistent(_big_file_persistent):
+    with NamedTemporaryFile() as ntf:
+        ext4_device = Path(ntf.name)
+        shutil.copy(_big_file_persistent, ext4_device)
+        sdm.mkfs_ext4(ext4_device)
+        yield ext4_device
+
+
+@pytest.fixture
+def ext4_device(_ext4_device_persistent):
+    with NamedTemporaryFile() as ntf:
+        file = Path(ntf.name)
+        shutil.copy(_ext4_device_persistent, file)
         yield file
