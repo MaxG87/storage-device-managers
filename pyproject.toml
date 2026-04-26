@@ -63,7 +63,7 @@ testpaths = ["tests"]
 
 [tool.ruff]
 src = [".", "src/"]
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["A", "B", "C", "F", "I", "ISC", "PIE", "PL", "Q", "RUF", "SIM", "TID", "W", "YTT"]
