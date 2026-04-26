@@ -24,6 +24,7 @@ except ModuleNotFoundError:
 
 __version__ = metadata.version(__name__)
 
+MountOptions = frozenset[str]
 ValidFileSystems = t.Literal["btrfs", "ext4"]
 
 
@@ -333,25 +334,37 @@ def is_mounted(device: Path) -> bool:
     return True
 
 
-def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, frozenset[str]]]:
+def get_mounted_devices() -> t.Mapping[str, t.Mapping[Path, MountOptions]]:
     """Get all mounted devices
 
-    This function will parse the output of `mount` and return everything that
-    is mounted to somewhere. Since a source can be mounted to multiple
-    destinations, the return value is a dictionary mapping device names to sets
-    of mount points.
+    This function will parse the output of `mount` and return everything that is mounted
+    to somewhere. The returned mapping maps device names (i.e. mount sources) to their
+    destinations and mount options.
+
+    Since a source can be mounted to multiple (e.g. /dev/sda1 can be mounted to
+    /home/{user1,user2}/Videos), the value of the mapping is another mapping. This inner
+    mapping maps mount destinations to their mount options.
 
     Returns:
     --------
-    t.Mapping[str, t.Mapping[Path, frozenset[str]]]
+    t.Mapping[str, t.Mapping[Path, MountOptions]]
         A mapping that maps mount sources (i.e. device names) to their
         destinations and mount options.
+
+    Example Return Value:
+    ---------------------
+    {
+        "/dev/nvme0n1p2": {
+            Path("/boot"): frozenset({"rw", "relatime"}),
+            Path("/media/backup"): frozenset({"rw", "relatime", "compress=zstd:3"}),
+        },
+    }
     """
     # Example line:
     # /dev/nvme0n1p2 on /boot type ext2 (rw,relatime)
     raw_mounts = sh.run_cmd(cmd=["mount"], capture_output=True)
     mount_lines = raw_mounts.stdout.decode().splitlines()
-    mount_points: dict[str, dict[Path, frozenset[str]]] = defaultdict(dict)
+    mount_points: dict[str, dict[Path, MountOptions]] = defaultdict(dict)
     for line in mount_lines:
         device = line.split()[0]
         dest = Path(line.split()[2])
