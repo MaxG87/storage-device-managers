@@ -152,12 +152,10 @@ def mounted_device(
     mount it to some temporary directory and return its path. Upon exit, the
     file-like object is unmounted again.
 
-    The filesystem of `device` must be BtrFS. While technically other file
-    systems might work too, this behaviour is not guaranteed and might be
-    broken without further notice!
-
     If `compression` is provided, a mount option specifying the transparent
-    file system compression is set.
+    file system compression is set. Compression is only supported for BtrFS
+    devices. If `compression` is given for a non-BtrFS device, it is silently
+    ignored.
 
     Parameters:
     -----------
@@ -174,7 +172,7 @@ def mounted_device(
     if is_mounted(device):
         unmount_device(device)
     with temoprary_directory() as mount_dir:
-        mount_btrfs_device(device, mount_dir, compression)
+        mount_device(device, mount_dir, compression)
         logger.success(
             f"Speichermedium {device} erfolgreich nach {mount_dir} gemountet."
         )
@@ -281,12 +279,18 @@ def mount_ext4_device(device: Path, mount_dir: Path) -> None:
     sh.run_cmd(cmd=cmd)
 
 
-def mount_device(device: Path, mount_dir: Path) -> None:
+def mount_device(
+    device: Path, mount_dir: Path, compression: ValidCompressions | None = None
+) -> None:
     """Mount a device without knowing its file system type
 
     Given a path pointing to a file-like object and a target directory, this
     function will detect the file system of the device and mount it to the
     target directory using the appropriate mount function.
+
+    If `compression` is provided and the file system of `device` is BtrFS, a mount
+    option specifying the transparent file system compression is set. For other file
+    systems, `compression` is silently ignored.
 
     Parameters:
     -----------
@@ -294,11 +298,13 @@ def mount_device(device: Path, mount_dir: Path) -> None:
         file-like object to be mounted
     mount_dir
         directory to which `device` is mounted
+    compression
+        compression level to be used by BtrFS
     """
     fs = get_filesystem(device)
     match fs:
         case "btrfs":
-            mount_btrfs_device(device, mount_dir)
+            mount_btrfs_device(device, mount_dir, compression)
         case "ext4":
             mount_ext4_device(device, mount_dir)
         case _:
