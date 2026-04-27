@@ -71,7 +71,7 @@ class ValidCompressions(enum.StrEnum):
 
 
 @contextlib.contextmanager
-def temoprary_directory() -> Iterator[Path]:
+def temporary_directory() -> Iterator[Path]:
     """Create a temporary directory
 
     This context manager will create a temporary directory and return its path.
@@ -170,7 +170,7 @@ def mounted_device(
     """
     if is_mounted(device):
         unmount_device(device)
-    with temoprary_directory() as mount_dir:
+    with temporary_directory() as mount_dir:
         mount_device(device, mount_dir, compression)
         logger.success(
             f"Speichermedium {device} erfolgreich nach {mount_dir} gemountet."
