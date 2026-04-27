@@ -24,6 +24,35 @@ except ModuleNotFoundError:
 
 __version__ = metadata.version(__name__)
 
+__all__ = [
+    "DeviceDecryptionError",
+    "InvalidDecryptedDevice",
+    "MountOptions",
+    "UnmountError",
+    "ValidCompressions",
+    "ValidFileSystems",
+    "chown",
+    "close_decrypted_device",
+    "decrypted_device",
+    "encrypt_device",
+    "generate_passcmd",
+    "get_filesystem",
+    "get_mounted_devices",
+    "is_mounted",
+    "mkfs",
+    "mkfs_btrfs",
+    "mkfs_ext4",
+    "mount_btrfs_device",
+    "mount_device",
+    "mount_ext4_device",
+    "mounted_device",
+    "open_encrypted_device",
+    "symbolic_link",
+    "sync_device",
+    "temporary_directory",
+    "unmount_device",
+]
+
 MountOptions = frozenset[str]
 ValidFileSystems = t.Literal["btrfs", "ext4"]
 
