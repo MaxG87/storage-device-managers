@@ -73,7 +73,7 @@ with symbolic_link(src, dest) as link:
   - Decrypts a device using `cryptsetup` and returns a context-managed path.
   - Raises `shell_interface.PassCmdError` if the password command fails.
   - Raises `shell_interface.ShellInterfaceError` on other shell-related errors.
-- `mounted_device(device: Path, compression: Optional[ValidCompressions] = None) -> Iterator[Path]`
+- `mounted_device(device: Path, compression: ValidCompressions | None = None) -> Iterator[Path]`
   - Mounts a device to a temporary directory, auto-detecting the file system type. For BtrFS, optional compression settings are supported.
 - `symbolic_link(src: Path, dest: Path) -> Iterator[Path]`
   - Creates and removes a symbolic link with root privileges.
@@ -81,8 +81,8 @@ with symbolic_link(src, dest) as link:
 ### Utility Functions
 
 - `get_filesystem(device: Path) -> str`
-- `mount_device(device: Path, mount_dir: Path, compression: Optional[ValidCompressions] = None) -> None`
-- `mount_btrfs_device(device: Path, mount_dir: Path, compression: Optional[ValidCompressions] = None) -> None`
+- `mount_device(device: Path, mount_dir: Path, compression: ValidCompressions | None = None) -> None`
+- `mount_btrfs_device(device: Path, mount_dir: Path, compression: ValidCompressions | None = None) -> None`
 - `mount_ext4_device(device: Path, mount_dir: Path) -> None`
 - `is_mounted(device: Path) -> bool`
 - `get_mounted_devices() -> Mapping[str, Mapping[Path, frozenset[str]]]`
@@ -98,7 +98,7 @@ with symbolic_link(src, dest) as link:
 - `mkfs_btrfs(device: Path) -> None`
 - `mkfs_ext4(device: Path) -> None`
 - `generate_passcmd() -> str`
-- `chown(file_or_folder: Path, user: Union[int, str], group: Optional[Union[int, str]] = None, *, recursive: bool) -> None`
+- `chown(file_or_folder: Path, user: int | str, group: int | str | None = None, *, recursive: bool) -> None`
 
 ## Contributing
 
